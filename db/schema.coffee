@@ -1,3 +1,3 @@
-Note = define 'Template', ->
-    property 'title', String
-    property 'content', String
+File = define 'File', ->
+    property 'name', String
+    property '_attachments', Object

@@ -1,12 +1,11 @@
-{ "name": "cozy-template"
+{ "name": "cozy-files"
 , "version": "1.0.0"
 , "engines": ["node = 0.8.x"]
-, "description": "A template project for cozy applications"
-, "license": "MIT"
+, "description": "Cozy files allows to store files in your cozy"
 , "repository":
   {
     "type": "git"
-  , "url": "https://github.com/mycozycloud/cozy-template.git"
+  , "url": "https://github.com/poupotte/cozy-files.git"
   }
 , "main": "server.coffee"
 , "dependencies":
@@ -19,7 +18,7 @@
   , "mime":             "= 1.2.7"
   , "qs":               "= 0.5.0"
   , "jugglingdb":       "= 0.2.0-23"
-  , "jugglingdb-cozy-adapter": "0.3.1"
+  , "jugglingdb-cozy-adapter": "0.3.3"
   }
 , "devDependencies":
   { "should":           "= 1.2.0"
@@ -31,4 +30,12 @@
   { "test": "cake tests"
   , "start": "coffee server.coffee"
   }
+, "cozy-permissions":
+  {
+    "File":
+    {
+      "description": "Store files in your cozy"
+    }
+  }
+
 }

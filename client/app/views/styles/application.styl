@@ -1,12 +1,44 @@
-// nib is a powerful lib for stylus that provides cross-browser css3 mixins.
-@import 'nib'
+#content
+    padding: 2em
 
-@import '_base'
-@import '_ui'
+#file-list
+    padding: 2em
 
-// Import your styles here
+    .file
+        margin: 1em 0
 
-@import '_states'
-@import '_layout'
-@import '_responsive'
+        .title
+            font-weight: bold
 
+    .btn
+        background none
+        text-shadow none
+        background-color buttoncolor
+        border-radius 0px !important
+        border 0px
+        color white
+
+        .caret
+            border-top 4px solid white
+
+        .btn.disabled
+            border 1px solid buttoncolor
+            background-color lightgrey
+
+        .btn:not(.disabled):hover
+            background-color highlightcolor
+            text-decoration none
+            color white
+
+        .btn:not(.disabled):active
+        .btn:not(.disabled):focus
+            background-color buttoncolor
+            color white
+            text-decoration none
+
+        .btn:not(.disabled):active, .btn.pressed
+            box-shadow: 1px 3px 2px rgba(0, 0, 0, 0.2) inset, 0 0 0
+            background: highlightcolor - 5%
+
+#content-file
+    padding: 2em
