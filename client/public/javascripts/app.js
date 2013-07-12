@@ -664,6 +664,54 @@ window.require.register("views/fileslist_item", function(exports, require, modul
   })(BaseView);
   
 });
+window.require.register("views/folderslist_item", function(exports, require, module) {
+  var BaseView, FileListsItemView, _ref,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  BaseView = require('../lib/base_view');
+
+  module.exports = FileListsItemView = (function(_super) {
+    __extends(FileListsItemView, _super);
+
+    function FileListsItemView() {
+      _ref = FileListsItemView.__super__.constructor.apply(this, arguments);
+      return _ref;
+    }
+
+    FileListsItemView.prototype.className = 'folder';
+
+    FileListsItemView.prototype.tagName = 'div';
+
+    FileListsItemView.prototype.template = require('./templates/folderslist_item');
+
+    FileListsItemView.prototype.events = function() {
+      return {
+        'click .delete-button': 'onDeleteClicked'
+      };
+    };
+
+    FileListsItemView.prototype.initialize = function() {
+      FileListsItemView.__super__.initialize.apply(this, arguments);
+      console.log("init");
+      return this.listenTo(this.model, 'change:id', this.render);
+    };
+
+    FileListsItemView.prototype.onDeleteClicked = function() {
+      this.$('.delete-button').html("deleting...");
+      return this.model.destroy({
+        error: function() {
+          alert("Server error occured, file was not deleted.");
+          return this.$('.delete-button').html("delete");
+        }
+      });
+    };
+
+    return FileListsItemView;
+
+  })(BaseView);
+  
+});
 window.require.register("views/templates/fileslist", function(exports, require, module) {
   module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
   attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
@@ -683,6 +731,32 @@ window.require.register("views/templates/fileslist_item", function(exports, requ
   var interp;
   buf.push('<a');
   buf.push(attrs({ 'href':("files/" + (model.id) + "/attach/" + (model.name) + ""), 'target':("_blank") }, {"href":true,"target":true}));
+  buf.push('>' + escape((interp = model.name) == null ? '' : interp) + '</a><button class="delete-button">Delete</button>');
+  }
+  return buf.join("");
+  };
+});
+window.require.register("views/templates/folderlist_item", function(exports, require, module) {
+  module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
+  attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+  var buf = [];
+  with (locals || {}) {
+  var interp;
+  buf.push('<a');
+  buf.push(attrs({ 'href':("files/" + (model.id) + "/attach/" + (model.name) + ""), 'target':("_blank") }, {"href":true,"target":true}));
+  buf.push('>' + escape((interp = model.name) == null ? '' : interp) + '</a><button class="delete-button">Delete</button>');
+  }
+  return buf.join("");
+  };
+});
+window.require.register("views/templates/folderslist_item", function(exports, require, module) {
+  module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
+  attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+  var buf = [];
+  with (locals || {}) {
+  var interp;
+  buf.push('<a');
+  buf.push(attrs({ 'href':("folders/" + (model.id) + ""), 'target':("_blank") }, {"href":true,"target":true}));
   buf.push('>' + escape((interp = model.name) == null ? '' : interp) + '</a><button class="delete-button">Delete</button>');
   }
   return buf.join("");

@@ -22,11 +22,12 @@ action 'all', ->
 
 action 'create', ->
     file = req.files["file"]
+    req.body.slug = file.name
     File.create req.body, (err, newfile) =>
         if err
             send error: true, msg: "Server error while creating file.", 500
         else
-            newfile.attachFile file.path, {name: file.name}, (err) ->
+            newfile.attachFile file.path, {"name": file.name}, (err) ->
                 if err
                     send error: true, msg: "Server error while add attachment file.", 500
                 else
