@@ -80,11 +80,19 @@
 })();
 
 window.require.register("application", function(exports, require, module) {
+  var FileCollection, FolderCollection;
+
+  FolderCollection = require('./collections/folder');
+
+  FileCollection = require('./collections/file');
+
   module.exports = {
     initialize: function() {
       var Router;
       Router = require('router');
       this.router = new Router();
+      this.folders = new FolderCollection();
+      this.files = new FileCollection();
       Backbone.history.start();
       if (typeof Object.freeze === 'function') {
         return Object.freeze(this);
@@ -112,7 +120,52 @@ window.require.register("collections/file", function(exports, require, module) {
 
     FileCollection.prototype.url = 'files';
 
+    FileCollection.prototype.sync = function(method, model, options) {
+      var progress;
+      progress = function(e) {
+        return model.trigger('progress', e);
+      };
+      _.extend(options, {
+        xhr: function() {
+          var xhr;
+          xhr = $.ajaxSettings.xhr();
+          if (xhr instanceof window.XMLHttpRequest) {
+            xhr.addEventListener('progress', progress, false);
+          }
+          if (xhr.upload) {
+            xhr.upload.addEventListener('progress', progress, false);
+          }
+          return xhr;
+        }
+      });
+      return Backbone.sync.apply(this, arguments);
+    };
+
     return FileCollection;
+
+  })(Backbone.Collection);
+  
+});
+window.require.register("collections/folder", function(exports, require, module) {
+  var Folder, FolderCollection, _ref,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Folder = require('../models/folder');
+
+  module.exports = FolderCollection = (function(_super) {
+    __extends(FolderCollection, _super);
+
+    function FolderCollection() {
+      _ref = FolderCollection.__super__.constructor.apply(this, arguments);
+      return _ref;
+    }
+
+    FolderCollection.prototype.model = Folder;
+
+    FolderCollection.prototype.url = 'folders';
+
+    return FolderCollection;
 
   })(Backbone.Collection);
   
@@ -501,33 +554,192 @@ window.require.register("models/file", function(exports, require, module) {
   })(Backbone.Model);
   
 });
-window.require.register("router", function(exports, require, module) {
-  var FileCollection, FilesView, Router, _ref,
+window.require.register("models/folder", function(exports, require, module) {
+  var Bookmark, client, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  FilesView = require('views/fileslist');
+  client = require("../helpers/client");
 
-  FileCollection = require('collections/file');
+  module.exports = Bookmark = (function(_super) {
+    __extends(Bookmark, _super);
+
+    function Bookmark() {
+      _ref = Bookmark.__super__.constructor.apply(this, arguments);
+      return _ref;
+    }
+
+    Bookmark.prototype.rootUrl = 'folders';
+
+    Bookmark.prototype.prepareCallbacks = function(callbacks, presuccess, preerror) {
+      var error, success, _ref1,
+        _this = this;
+      _ref1 = callbacks || {}, success = _ref1.success, error = _ref1.error;
+      if (presuccess == null) {
+        presuccess = function(data) {
+          return _this.set(data.app);
+        };
+      }
+      this.trigger('request', this, null, callbacks);
+      callbacks.success = function(data) {
+        if (presuccess) {
+          presuccess(data);
+        }
+        _this.trigger('sync', _this, null, callbacks);
+        if (success) {
+          return success(data);
+        }
+      };
+      return callbacks.error = function(jqXHR) {
+        if (preerror) {
+          preerror(jqXHR);
+        }
+        _this.trigger('error', _this, jqXHR, {});
+        if (error) {
+          return error(jqXHR);
+        }
+      };
+    };
+
+    Bookmark.prototype.get = function(callbacks) {
+      this.prepareCallbacks(callbacks);
+      return client.get("/folders/" + this.id, callbacks);
+    };
+
+    Bookmark.prototype.findFiles = function(callbacks) {
+      this.prepareCallbacks(callbacks);
+      return client.get("/folders/" + this.id + "/files", callbacks);
+    };
+
+    Bookmark.prototype.findFolders = function(callbacks) {
+      this.prepareCallbacks(callbacks);
+      return client.get("/folders/" + this.id + "/folders", callbacks);
+    };
+
+    return Bookmark;
+
+  })(Backbone.Model);
+  
+});
+window.require.register("models/foler", function(exports, require, module) {
+  var Bookmark, client, _ref,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  client = require("../helpers/client");
+
+  module.exports = Bookmark = (function(_super) {
+    __extends(Bookmark, _super);
+
+    function Bookmark() {
+      _ref = Bookmark.__super__.constructor.apply(this, arguments);
+      return _ref;
+    }
+
+    Bookmark.prototype.rootUrl = 'files';
+
+    Bookmark.prototype.prepareCallbacks = function(callbacks, presuccess, preerror) {
+      var error, success, _ref1,
+        _this = this;
+      _ref1 = callbacks || {}, success = _ref1.success, error = _ref1.error;
+      if (presuccess == null) {
+        presuccess = function(data) {
+          return _this.set(data.app);
+        };
+      }
+      this.trigger('request', this, null, callbacks);
+      callbacks.success = function(data) {
+        if (presuccess) {
+          presuccess(data);
+        }
+        _this.trigger('sync', _this, null, callbacks);
+        if (success) {
+          return success(data);
+        }
+      };
+      return callbacks.error = function(jqXHR) {
+        if (preerror) {
+          preerror(jqXHR);
+        }
+        _this.trigger('error', _this, jqXHR, {});
+        if (error) {
+          return error(jqXHR);
+        }
+      };
+    };
+
+    Bookmark.prototype.getAttachment = function(file, callbacks) {
+      this.prepareCallbacks(callbacks);
+      return client.post("/files/" + this.id + "/getAttachment/" + this.name, callbacks);
+    };
+
+    return Bookmark;
+
+  })(Backbone.Model);
+  
+});
+window.require.register("router", function(exports, require, module) {
+  var Folder, FolderView, HomeView, Router, app, _ref,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  app = require('application');
+
+  HomeView = require('views/home');
+
+  FolderView = require('views/folder');
+
+  Folder = require('models/folder');
 
   module.exports = Router = (function(_super) {
     __extends(Router, _super);
 
     function Router() {
+      this.displayView = __bind(this.displayView, this);
       _ref = Router.__super__.constructor.apply(this, arguments);
       return _ref;
     }
 
     Router.prototype.routes = {
-      '': 'main'
+      '': 'main',
+      'folders/:folderid': 'folder'
     };
 
     Router.prototype.main = function() {
-      var mainView;
-      mainView = new FilesView({
-        collection: new FileCollection()
+      var folder;
+      folder = new Folder({
+        id: "root"
       });
-      return mainView.render();
+      return this.displayView(new FolderView({
+        model: folder
+      }));
+    };
+
+    Router.prototype.folder = function(id) {
+      var folder,
+        _this = this;
+      folder = app.folders.get(id) || new Folder({
+        id: id
+      });
+      return folder.fetch().done(function() {
+        return _this.displayView(new FolderView({
+          model: folder
+        }));
+      }).fail(function() {
+        alert(t('this album does not exist'));
+        return _this.navigate('folders', true);
+      });
+    };
+
+    Router.prototype.displayView = function(view) {
+      var el;
+      if (this.mainView) {
+        this.mainView.remove();
+      }
+      this.mainView = view;
+      el = this.mainView.render().$el;
+      return $('body').append(el);
     };
 
     return Router;
@@ -540,6 +752,10 @@ window.require.register("views/fileslist", function(exports, require, module) {
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  BaseView = require('../lib/base_view');
+
+  FileView = require('./fileslist_item');
 
   BaseView = require('../lib/base_view');
 
@@ -563,42 +779,24 @@ window.require.register("views/fileslist", function(exports, require, module) {
 
     FilesListView.prototype.itemview = FileView;
 
-    FilesListView.prototype.el = 'body.application';
-
     FilesListView.prototype.collectionEl = '#file-list';
 
     FilesListView.views = {};
 
-    FilesListView.prototype.initialize = function() {
-      return FilesListView.__super__.initialize.apply(this, arguments);
-    };
-
-    FilesListView.prototype.events = function() {
-      return {
-        'change #uploader': 'addFile'
-      };
+    FilesListView.prototype.initialize = function(data) {
+      FilesListView.__super__.initialize.apply(this, arguments);
+      this.repository = "";
+      if (data.repository != null) {
+        return this.repository = data.repository;
+      }
     };
 
     FilesListView.prototype.afterRender = function() {
-      var _this = this;
-      FilesListView.__super__.afterRender.call(this);
-      this.uploader = this.$('#uploader')[0];
-      this.$collectionEl.html('<em>loading...</em>');
-      return this.collection.fetch({
-        success: function(collection, response, option) {
-          return _this.$collectionEl.find('em').remove();
-        },
-        error: function() {
-          var msg;
-          msg = "Files couldn't be retrieved due to a server error.";
-          return _this.$collectionEl.find('em').html(msg);
-        }
-      });
+      return FilesListView.__super__.afterRender.call(this);
     };
 
-    FilesListView.prototype.addFile = function() {
-      var attach, file, fileAttributes;
-      attach = this.uploader.files[0];
+    FilesListView.prototype.addFile = function(attach) {
+      var file, fileAttributes;
       fileAttributes = {};
       fileAttributes.name = attach.name;
       file = new File(fileAttributes);
@@ -611,7 +809,7 @@ window.require.register("views/fileslist", function(exports, require, module) {
       var formdata;
       formdata = new FormData();
       formdata.append('cid', file.cid);
-      formdata.append('name', file.get('name'));
+      formdata.append('name', this.repository + file.get('name'));
       formdata.append('file', file.file);
       return Backbone.sync('create', file, {
         contentType: false,
@@ -646,15 +844,15 @@ window.require.register("views/fileslist_item", function(exports, require, modul
     FileListsItemView.prototype.template = require('./templates/fileslist_item');
 
     FileListsItemView.prototype.events = {
-      'click .delete-button': 'onDeleteClicked'
+      'click button.delete': 'onDeleteClicked'
     };
 
     FileListsItemView.prototype.onDeleteClicked = function() {
-      this.$('.delete-button').html("deleting...");
+      this.$('button.delete').html("deleting...");
       return this.model.destroy({
         error: function() {
           alert("Server error occured, file was not deleted.");
-          return this.$('.delete-button').html("delete");
+          return this.$('button.delete').html("delete");
         }
       });
     };
@@ -662,6 +860,177 @@ window.require.register("views/fileslist_item", function(exports, require, modul
     return FileListsItemView;
 
   })(BaseView);
+  
+});
+window.require.register("views/folder", function(exports, require, module) {
+  var AppView, BaseView, FileCollection, FilesList, Folder, FolderCollection, FoldersList, Uploader, app, _ref,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  BaseView = require('../lib/base_view');
+
+  Uploader = require('./uploader');
+
+  FilesList = require('./fileslist');
+
+  FileCollection = require('../collections/file');
+
+  FolderCollection = require('../collections/folder');
+
+  FoldersList = require('./folderslist');
+
+  Folder = require('../models/folder');
+
+  app = require('application');
+
+  module.exports = AppView = (function(_super) {
+    __extends(AppView, _super);
+
+    function AppView() {
+      _ref = AppView.__super__.constructor.apply(this, arguments);
+      return _ref;
+    }
+
+    AppView.prototype.template = require('./templates/folder');
+
+    AppView.prototype.id = 'folder';
+
+    AppView.prototype.className = 'container-fluid';
+
+    AppView.prototype.events = function() {
+      return {
+        'click .add': 'onAddFolder',
+        'change #uploader': 'onAddFile'
+      };
+    };
+
+    AppView.prototype.afterRender = function() {
+      var _this = this;
+      AppView.__super__.afterRender.apply(this, arguments);
+      this.name = this.$('#name');
+      this.uploader = this.$('#uploader')[0];
+      this.model.findFiles({
+        success: function(files) {
+          var collection, data;
+          app.files.add(files);
+          collection = new FileCollection(files);
+          if (_this.model.attributes.id === 'root') {
+            _this.repository = "";
+          } else {
+            _this.repository = _this.model.attributes.slug.replace('.couchfs-directory-placeholder', '');
+          }
+          data = {
+            collection: collection,
+            repository: _this.repository
+          };
+          _this.filesList = new FilesList(data);
+          _this.$('#files').append(_this.filesList.$el);
+          return _this.filesList.render();
+        }
+      });
+      return this.model.findFolders({
+        success: function(folders) {
+          var collection, data;
+          app.folders.add(folders);
+          collection = new FolderCollection(folders);
+          if (_this.model.attributes.id === 'root') {
+            _this.repository = "";
+          } else {
+            _this.repository = _this.model.attributes.slug.replace('.couchfs-directory-placeholder', '');
+          }
+          data = {
+            collection: collection,
+            repository: _this.repository
+          };
+          _this.foldersList = new FoldersList(data);
+          _this.$('#folders').append(_this.foldersList.$el);
+          return _this.foldersList.render();
+        }
+      });
+    };
+
+    AppView.prototype.onAddFolder = function() {
+      var folder;
+      folder = new Folder({
+        name: this.repository + this.name.val()
+      });
+      return this.foldersList.onAddFolder(folder);
+    };
+
+    AppView.prototype.onAddFile = function() {
+      var attach;
+      attach = this.uploader.files[0];
+      return this.filesList.addFile(attach);
+    };
+
+    return AppView;
+
+  })(BaseView);
+  
+});
+window.require.register("views/folderslist", function(exports, require, module) {
+  var BaseView, FileView, FilesListView, Folder, FolderView, ViewCollection, app, _ref,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  BaseView = require('../lib/base_view');
+
+  FileView = require('./fileslist_item');
+
+  BaseView = require('../lib/base_view');
+
+  FolderView = require('./folderslist_item');
+
+  Folder = require('../models/folder');
+
+  ViewCollection = require('../lib/view_collection');
+
+  app = require('application');
+
+  module.exports = FilesListView = (function(_super) {
+    __extends(FilesListView, _super);
+
+    function FilesListView() {
+      _ref = FilesListView.__super__.constructor.apply(this, arguments);
+      return _ref;
+    }
+
+    FilesListView.prototype.template = require('./templates/folderslist');
+
+    FilesListView.prototype.itemview = FolderView;
+
+    FilesListView.prototype.collectionEl = '#folder-list';
+
+    FilesListView.views = {};
+
+    FilesListView.prototype.events = function() {
+      return {
+        'click .add': 'onAddFolder'
+      };
+    };
+
+    FilesListView.prototype.initialize = function(data) {
+      FilesListView.__super__.initialize.apply(this, arguments);
+      this.repository = "";
+      if (data.repository != null) {
+        return this.repository = data.repository;
+      }
+    };
+
+    FilesListView.prototype.afterRender = function() {
+      FilesListView.__super__.afterRender.apply(this, arguments);
+      return this.name = this.$('#name');
+    };
+
+    FilesListView.prototype.onAddFolder = function(folder) {
+      console.log("onAddFolders");
+      this.collection.create(folder);
+      return app.folders.add(folder);
+    };
+
+    return FilesListView;
+
+  })(ViewCollection);
   
 });
 window.require.register("views/folderslist_item", function(exports, require, module) {
@@ -687,13 +1056,13 @@ window.require.register("views/folderslist_item", function(exports, require, mod
 
     FileListsItemView.prototype.events = function() {
       return {
-        'click .delete-button': 'onDeleteClicked'
+        'click .delete-button': 'onDeleteClicked',
+        'click .show-button': 'onShowClicked'
       };
     };
 
     FileListsItemView.prototype.initialize = function() {
       FileListsItemView.__super__.initialize.apply(this, arguments);
-      console.log("init");
       return this.listenTo(this.model, 'change:id', this.render);
     };
 
@@ -712,13 +1081,85 @@ window.require.register("views/folderslist_item", function(exports, require, mod
   })(BaseView);
   
 });
+window.require.register("views/home", function(exports, require, module) {
+  var AppView, BaseView, FilesList, Folder, FoldersList, Uploader, app, _ref,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  BaseView = require('../lib/base_view');
+
+  Uploader = require('./uploader');
+
+  FilesList = require('./fileslist');
+
+  FoldersList = require('./folderslist');
+
+  Folder = require('../models/folder');
+
+  app = require('application');
+
+  module.exports = AppView = (function(_super) {
+    __extends(AppView, _super);
+
+    function AppView() {
+      _ref = AppView.__super__.constructor.apply(this, arguments);
+      return _ref;
+    }
+
+    AppView.prototype.el = 'body.application';
+
+    AppView.prototype.template = require('./templates/home');
+
+    AppView.prototype.events = function() {
+      return {
+        'click .add': 'onAddFolder'
+      };
+    };
+
+    AppView.prototype.afterRender = function() {
+      var _this = this;
+      AppView.__super__.afterRender.apply(this, arguments);
+      this.name = this.$('#name');
+      return app.files.fetch({
+        success: function(collection) {
+          _this.filesList = new FilesList({
+            collection: collection
+          });
+          return app.folders.fetch({
+            success: function(collection) {
+              _this.foldersList = new FoldersList({
+                collection: collection
+              });
+              _this.$('#files').append(_this.filesList.$el);
+              _this.$('#folders').append(_this.foldersList.$el);
+              _this.filesList.render();
+              return _this.foldersList.render();
+            }
+          });
+        }
+      });
+    };
+
+    AppView.prototype.onAddFolder = function() {
+      var folder;
+      folder = new Folder({
+        name: this.repository + this.name.val()
+      });
+      return this.foldersList.onAddFolder(folder);
+    };
+
+    return AppView;
+
+  })(BaseView);
+  
+});
 window.require.register("views/templates/fileslist", function(exports, require, module) {
   module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
   attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<div id="content"><h1>Cozy file</h1><input id="uploader" type="file"/><div id="file-list"></div></div>');
+  buf.push('<div id="file-list"></div>');
   }
   return buf.join("");
   };
@@ -731,7 +1172,18 @@ window.require.register("views/templates/fileslist_item", function(exports, requ
   var interp;
   buf.push('<a');
   buf.push(attrs({ 'href':("files/" + (model.id) + "/attach/" + (model.name) + ""), 'target':("_blank") }, {"href":true,"target":true}));
-  buf.push('>' + escape((interp = model.name) == null ? '' : interp) + '</a><button class="delete-button">Delete</button>');
+  buf.push('>' + escape((interp = model.name) == null ? '' : interp) + '</a><button class="delete flatbtn"><i class="icon-remove icon-white"></i></button>');
+  }
+  return buf.join("");
+  };
+});
+window.require.register("views/templates/folder", function(exports, require, module) {
+  module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
+  attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+  var buf = [];
+  with (locals || {}) {
+  var interp;
+  buf.push('<div id="h4">' + escape((interp = model.name) == null ? '' : interp) + '</div><input id="uploader" type="file"/><input type="text" value="" id="name" placeholder="Folder name" class="input-block-level"/><button class="add"> <i class="icon-folder-close icon-white"></i></button><div id="content"><div id="files"></div><div id="folders"></div></div>');
   }
   return buf.join("");
   };
@@ -744,7 +1196,18 @@ window.require.register("views/templates/folderlist_item", function(exports, req
   var interp;
   buf.push('<a');
   buf.push(attrs({ 'href':("files/" + (model.id) + "/attach/" + (model.name) + ""), 'target':("_blank") }, {"href":true,"target":true}));
-  buf.push('>' + escape((interp = model.name) == null ? '' : interp) + '</a><button class="delete-button">Delete</button>');
+  buf.push('>' + escape((interp = model.name) == null ? '' : interp) + '</a><button class="delete flatbtn"><i class="icon-remove icon-white"></i></button>');
+  }
+  return buf.join("");
+  };
+});
+window.require.register("views/templates/folderslist", function(exports, require, module) {
+  module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
+  attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+  var buf = [];
+  with (locals || {}) {
+  var interp;
+  buf.push('<div id="content"><div id="folder-list"></div></div>');
   }
   return buf.join("");
   };
@@ -756,9 +1219,122 @@ window.require.register("views/templates/folderslist_item", function(exports, re
   with (locals || {}) {
   var interp;
   buf.push('<a');
-  buf.push(attrs({ 'href':("folders/" + (model.id) + ""), 'target':("_blank") }, {"href":true,"target":true}));
+  buf.push(attrs({ 'href':("#folders/" + (model.id) + "") }, {"href":true}));
   buf.push('>' + escape((interp = model.name) == null ? '' : interp) + '</a><button class="delete-button">Delete</button>');
   }
   return buf.join("");
   };
+});
+window.require.register("views/templates/home", function(exports, require, module) {
+  module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
+  attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+  var buf = [];
+  with (locals || {}) {
+  var interp;
+  buf.push('<input id="uploader" type="file"/><input type="text" value="" id="name" placeholder="Folder name" class="input-block-level"/><button class="add"> <i class="icon-folder-close icon-white"></i></button><div id="content"><div id="files"></div><div id="folders"></div></div>');
+  }
+  return buf.join("");
+  };
+});
+window.require.register("views/templates/uploader", function(exports, require, module) {
+  module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
+  attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+  var buf = [];
+  with (locals || {}) {
+  var interp;
+  buf.push('<input id="uploader" type="file"/>');
+  }
+  return buf.join("");
+  };
+});
+window.require.register("views/uploader", function(exports, require, module) {
+  var BaseView, Uploader, app, _ref,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  BaseView = require('../lib/base_view');
+
+  app = require('../../application');
+
+  module.exports = Uploader = (function(_super) {
+    __extends(Uploader, _super);
+
+    function Uploader() {
+      this.handleFiles = __bind(this.handleFiles, this);
+      this.upload = __bind(this.upload, this);
+      this.addFile = __bind(this.addFile, this);
+      _ref = Uploader.__super__.constructor.apply(this, arguments);
+      return _ref;
+    }
+
+    Uploader.prototype.className = 'uploader';
+
+    Uploader.prototype.tagName = 'div';
+
+    Uploader.prototype.template = require('./templates/uploader');
+
+    Uploader.prototype.events = function() {
+      return {
+        'change #uploader': 'addFile'
+      };
+    };
+
+    Uploader.prototype.afterRender = function() {
+      Uploader.__super__.afterRender.call(this);
+      return this.uploader = this.$('#uploader')[0];
+    };
+
+    Uploader.prototype.addFile = function() {
+      var attach, file, fileAttributes;
+      attach = this.uploader.files[0];
+      fileAttributes = {};
+      fileAttributes.name = attach.name;
+      file = new File(fileAttributes);
+      file.file = attach;
+      return this.upload(file);
+    };
+
+    Uploader.prototype.upload = function() {
+      var formdata;
+      formdata = new FormData();
+      formdata.append('cid', file.cid);
+      formdata.append('name', file.get('name'));
+      formdata.append('file', file.file);
+      return Backbone.sync('create', file, {
+        contentType: false,
+        data: formdata
+      });
+    };
+
+    Uploader.prototype.handleFiles = function(file) {
+      var fileAttributes,
+        _this = this;
+      fileAttributes = {};
+      fileAttributes = {
+        title: file.name,
+        artist: "",
+        album: ""
+      };
+      file = new File(fileAttributes);
+      file.file = file;
+      app.files.unshift(file, {
+        sort: false
+      });
+      file.set({
+        state: 'client'
+      });
+      Backbone.Mediator.publish('uploader:addFile');
+      return this.uploadQueue.push(file, function(err, file) {
+        if (err) {
+          console.log(err);
+          return app.files.remove(file);
+        }
+      });
+    };
+
+    return Uploader;
+
+  })(BaseView);
+  
 });

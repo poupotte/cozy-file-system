@@ -1,44 +1,71 @@
+bgcolor = #fcfcfc
+uploadcolor = #34a6ff
+darkgrey = #444
+basecolor = lightgrey
+orange = #fe8800
+blue = #34a6ff
+
+
 #content
     padding: 2em
 
-#file-list
-    padding: 2em
+#file-list    
 
-    .file
-        margin: 1em 0
+    .file 
+        display block
+        margin-left 20px
+        margin-top 20px
+        height 30px
+        transition .2s ease-out
+        -webkit-transition .2s ease-out
 
-        .title
-            font-weight: bold
+    a:link 
+        text-decoration:none
+        color: blue
 
-    .btn
-        background none
-        text-shadow none
-        background-color buttoncolor
-        border-radius 0px !important
-        border 0px
-        color white
+    a:visited 
+        text-decoration:none
+        color: orange
 
-        .caret
-            border-top 4px solid white
+    a:hover 
+        text-decoration:underline
 
-        .btn.disabled
-            border 1px solid buttoncolor
-            background-color lightgrey
+    a:active 
+        text-decoration:underline
+        color: orange
 
-        .btn:not(.disabled):hover
-            background-color highlightcolor
-            text-decoration none
-            color white
+    a.flatbtn
+        float: right
+        text-align: left
+        width: auto
+        padding: 8px
+        line-height: 16px
+        font-size: 16px
+        text-transform: lowercase
 
-        .btn:not(.disabled):active
-        .btn:not(.disabled):focus
-            background-color buttoncolor
-            color white
-            text-decoration none
+    a.flatbtn.active
+        background-color: orange
 
-        .btn:not(.disabled):active, .btn.pressed
-            box-shadow: 1px 3px 2px rgba(0, 0, 0, 0.2) inset, 0 0 0
-            background: highlightcolor - 5%
+#uploader
+    margin-left 20px
+    margin-top 20px
+    margin-bottom 20px
 
-#content-file
-    padding: 2em
+#folder-list
+    .folder 
+        height 110px
+        float left
+        padding 10px
+
+        a
+            display block
+            margin-right 10px
+            box-sizing border-box
+            border-radius 2px
+            border 1px solid blue
+            box-shadow 3px 3px 3px darkgrey
+            transition .2s ease-out
+            -webkit-transition .2s ease-out
+            overflow hidden
+            width 90px
+            height 90px

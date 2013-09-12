@@ -1,6 +1,7 @@
 module.exports = (compound) ->
 
     File = compound.models.File
+    Folder = compound.models.Folder
 
     all = (doc) ->
         # That means retrieve all docs and order them by title.
@@ -9,4 +10,10 @@ module.exports = (compound) ->
     File.defineRequest "all", all, (err) ->
         if err
             compound.logger.write "File.All requests, cannot be created"
+            compound.logger.write err
+
+
+    Folder.defineRequest "all", all, (err) ->
+        if err
+            compound.logger.write "Folder.All requests, cannot be created"
             compound.logger.write err

@@ -1,3 +1,7 @@
+FolderCollection = require('./collections/folder')
+FileCollection = require('./collections/file')
+
+
 module.exports =
 
     initialize: ->
@@ -7,6 +11,8 @@ module.exports =
         # Routing management
         Router = require 'router'
         @router = new Router()
+        @folders = new FolderCollection()
+        @files = new FileCollection()
         Backbone.history.start()
 
         # Makes this object immuable.

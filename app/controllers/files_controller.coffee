@@ -15,10 +15,14 @@ action 'find', ->
 
 action 'all', ->
     File.all (err, files) ->
+        res = []
         if err
             send error: true, msg: "Server error occured while retrieving data.", 500
         else
-            send files, 200
+            for file in files
+                if file.name.split('/').length is 1
+                    res.push file
+            send res, 200
 
 action 'create', ->
     file = req.files["file"]

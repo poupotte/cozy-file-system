@@ -1,6 +1,9 @@
 # This is where we import required modules
 BaseView = require '../lib/base_view'
 FileView  = require './fileslist_item'
+# This is where we import required modules
+BaseView = require '../lib/base_view'
+FileView = require './fileslist_item'
 File = require '../models/file'
 ViewCollection = require '../lib/view_collection'
 
@@ -8,30 +11,19 @@ module.exports = class FilesListView extends ViewCollection
 
     template: require('./templates/fileslist')
     itemview: FileView
-    el: 'body.application'
     collectionEl: '#file-list'
     @views = {}
 
-    initialize: ->
+    initialize: (data) ->
         super
-
-    events: ->
-        'change #uploader' : 'addFile'
+        @repository = ""
+        if data.repository?
+            @repository = data.repository
 
     afterRender: ->
         super()
-        @uploader = @$('#uploader')[0]
-        @$collectionEl.html '<em>loading...</em>'
-        @collection.fetch
-            success: (collection, response, option) =>
-                @$collectionEl.find('em').remove()
-            error: =>
-                msg = "Files couldn't be retrieved due to a server error."
-                @$collectionEl.find('em').html msg
-
-
-    addFile: ()=>
-        attach = @uploader.files[0]
+        
+    addFile: (attach)=>
         fileAttributes = {}
         fileAttributes.name = attach.name
         file = new File fileAttributes
@@ -43,7 +35,7 @@ module.exports = class FilesListView extends ViewCollection
     upload: (file) =>
         formdata = new FormData()
         formdata.append 'cid', file.cid
-        formdata.append 'name', file.get 'name'
+        formdata.append 'name', @repository + file.get 'name'
         formdata.append 'file', file.file
         Backbone.sync 'create', file,
             contentType:false

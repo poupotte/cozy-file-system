@@ -679,48 +679,63 @@ li[class^="icon-"].icon-large:before, li[class*=" icon-"].icon-large:before {
 #content {
   padding: 2em;
 }
-#file-list {
-  padding: 2em;
-}
 #file-list .file {
-  margin: 1em 0;
+  display: block;
+  margin-left: 20px;
+  margin-top: 20px;
+  height: 30px;
+  transition: 0.2s ease-out;
+  -webkit-transition: 0.2s ease-out;
 }
-#file-list .file .title {
-  font-weight: bold;
-}
-#file-list .btn {
-  background: none;
-  text-shadow: none;
-  background-color: buttoncolor;
-  border-radius: 0px !important;
-  border: 0px;
-  color: #fff;
-}
-#file-list .btn .caret {
-  border-top: 4px solid #fff;
-}
-#file-list .btn .btn.disabled {
-  border: 1px solid buttoncolor;
-  background-color: #d3d3d3;
-}
-#file-list .btn .btn:not(.disabled):hover {
-  background-color: highlightcolor;
+#file-list a:link {
   text-decoration: none;
-  color: #fff;
+  color: #34a6ff;
 }
-#file-list .btn .btn:not(.disabled):active,
-#file-list .btn .btn:not(.disabled):focus {
-  background-color: buttoncolor;
-  color: #fff;
+#file-list a:visited {
   text-decoration: none;
+  color: #fe8800;
 }
-#file-list .btn .btn:not(.disabled):active,
-#file-list .btn .btn.pressed {
-  box-shadow: 1px 3px 2px rgba(0,0,0,0.2) inset, 0 0 0;
-  background: highlightcolor -5%;
+#file-list a:hover {
+  text-decoration: underline;
 }
-#content-file {
-  padding: 2em;
+#file-list a:active {
+  text-decoration: underline;
+  color: #fe8800;
+}
+#file-list a.flatbtn {
+  float: right;
+  text-align: left;
+  width: auto;
+  padding: 8px;
+  line-height: 16px;
+  font-size: 16px;
+  text-transform: lowercase;
+}
+#file-list a.flatbtn.active {
+  background-color: #fe8800;
+}
+#uploader {
+  margin-left: 20px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+#folder-list .folder {
+  height: 110px;
+  float: left;
+  padding: 10px;
+}
+#folder-list .folder a {
+  display: block;
+  margin-right: 10px;
+  box-sizing: border-box;
+  border-radius: 2px;
+  border: 1px solid #34a6ff;
+  box-shadow: 3px 3px 3px #444;
+  transition: 0.2s ease-out;
+  -webkit-transition: 0.2s ease-out;
+  overflow: hidden;
+  width: 90px;
+  height: 90px;
 }
 .chromeframe { margin: 0.2em 0; background: #ccc; color: #000; padding: 0.2em 0; }
 .ir { display: block; border: 0; text-indent: -999em; overflow: hidden; background-color: transparent; background-repeat: no-repeat; text-align: left; direction: ltr; *line-height: 0; }

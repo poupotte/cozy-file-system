@@ -5,19 +5,25 @@ module.exports = class FileListsItemView extends BaseView
     # This time the html component does not exist in the dom.
     # So, we don't refer to a DOM element, we just give
     # class and tag names to let backbone build the component.
-    className: 'file'
+    className: 'folder'
     tagName: 'div'
 
     # The template render the bookmark with data given by the model
-    template: require './templates/fileslist_item'
-    # Register event
+    template: require './templates/folderslist_item'
 
-    events:
-        'click button.delete': 'onDeleteClicked'
+    # Register event
+    events: ->
+        'click .delete-button': 'onDeleteClicked'
+        'click .show-button': 'onShowClicked'
+
+    initialize: ->
+        super
+        @listenTo @model, 'change:id', @render
 
     onDeleteClicked: ->
-        @$('button.delete').html "deleting..."
+        @$('.delete-button').html "deleting..."
         @model.destroy
             error: ->
                 alert "Server error occured, file was not deleted."
-                @$('button.delete').html "delete"
+                @$('.delete-button').html "delete"
+
