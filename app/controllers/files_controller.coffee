@@ -17,7 +17,7 @@ action 'all', ->
     File.all (err, files) ->
         res = []
         if err
-            send error: true, msg: "Server error occured while retrieving data.", 500
+            send error: true, msg: "Server error occured", 500
         else
             for file in files
                 if file.name.split('/').length is 1
@@ -33,7 +33,8 @@ action 'create', ->
         else
             newfile.attachFile file.path, {"name": file.name}, (err) ->
                 if err
-                    send error: true, msg: "Server error while add attachment file.", 500
+                    send error: true, msg: "Server error while add attachment" +
+                        " file.", 500
                 else
                     send newfile, 200
 

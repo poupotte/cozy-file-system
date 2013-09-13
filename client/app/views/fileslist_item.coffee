@@ -20,8 +20,6 @@ module.exports = class FileListsItemView extends BaseView
         @listenTo @model, 'change', => onModelChange()
 
     onModelChange: ->
-        console.log "change model"
-        console.log @model
         @render()
 
 

@@ -32,6 +32,5 @@ module.exports = class FilesListView extends ViewCollection
         @collection.create folder,
             success: (data) =>
                 folder.name = data.name
-                console.log folder
                 @collection.save folder
         app.folders.add folder

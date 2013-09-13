@@ -33,7 +33,6 @@ module.exports = class FilesListView extends ViewCollection
 
 
     upload: (file) =>
-        console.log file
         formdata = new FormData()
         formdata.append 'cid', file.cid
         formdata.append 'name', @repository + file.get 'name'
@@ -41,7 +40,4 @@ module.exports = class FilesListView extends ViewCollection
         Backbone.sync 'create', file,
             contentType: false
             data: formdata
-        console.log @collection
-        console.log file.cid
-        console.log @collection._byId[file.cid]
         @collection._byId[file.cid].render()

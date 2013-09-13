@@ -1,6 +1,4 @@
-
-
-COUCHFS_DIRECTORY_PLACEHOLDER = '.couchfs-directory-placeholder'
+directoryPlaceholder = '.couchfs-directory-placeholder'
 
 
 before ->
@@ -19,11 +17,11 @@ before ->
 action 'findFoldersRoot', ->
     File.all (err, files) ->
         if err
-            send error: true, msg: "Server error occured while retrieving data.", 500
+            send error: true, msg: "Server error occured", 500
         else
             folders = []
             for file in files
-                if file.name.split('/')[1] is '.couchfs-directory-placeholder'
+                if file.name.split('/')[1] is directoryPlaceholder 
                     file.name = file.name.split('/')[0]
                     folders.push file
             send folders, 200
@@ -31,7 +29,7 @@ action 'findFoldersRoot', ->
 action 'findFilesRoot', ->
     File.all (err, files) ->
         if err
-            send error: true, msg: "Server error occured while retrieving data.", 500
+            send error: true, msg: "Server error occured", 500
         else
             filesRoot = []
             for file in files
@@ -42,7 +40,7 @@ action 'findFilesRoot', ->
 
 action 'create', ->
     name = req.body.name
-    newName = name + '/.couchfs-directory-placeholder'
+    newName = name + '/' + directoryPlaceholder
     req.body.name = newName
     req.body.slug = newName
     File.create req.body, (err, newFolder) =>
@@ -61,14 +59,15 @@ action 'findFiles', ->
     # Send folders and files in the current folder
     File.all (err, files) =>
         if err
-            send error: true, msg:  "Server error occured while retrieving data.", 500
+            send error: true, msg:  "Server error occured", 500
         else
             folderFiles = []
             for file in files
                 folder = @folder.name.split('/')
                 # Test if file or folder is in the current folder
-                folderName = @folder.name.replace ".couchfs-directory-placeholder", ''
-                if (file.name.indexOf(folderName) is 0) and (file.id isnt @folder.id)
+                folderName = @folder.name.replace directoryPlaceholder , ''
+                if (file.name.indexOf(folderName) is 0) and
+                        (file.id isnt @folder.id)
                     fileName = file.name.replace folderName, ''
                     fileSplit = fileName.split('/')
                     # Test if it is a file in the current folder
@@ -81,29 +80,30 @@ action 'findFolders', ->
     # Send folders and files in the current folder
     File.all (err, files) =>
         if err
-            send error: true, msg:  "Server error occured while retrieving data.", 500
+            send error: true, msg:  "Server error occured", 500
         else
             folders = []
             for file in files
                 folder = @folder.name.split('/')
                 # Test if file or folder is in the current folder
-                folderName = @folder.name.replace ".couchfs-directory-placeholder", ''
-                if (file.name.indexOf(folderName) is 0) and (file.id isnt @folder.id)
+                folderName = @folder.name.replace directoryPlaceholder , ''
+                if (file.name.indexOf(folderName) is 0) and 
+                        (file.id isnt @folder.id)
                     fileName = file.name.replace folderName, ''
                     fileSplit = fileName.split('/')
                     # Test if it is a folder in the current folder
-                    if (fileSplit.length is 2) and (fileSplit[1] is ".couchfs-directory-placeholder")
+                    if (fileSplit.length is 2) and
+                            (fileSplit[1] is directoryPlaceholder )
                         file.name = fileSplit[0]
                         folders.push file
             send folders, 200
 
-
 action 'destroy', ->
     File.all (err, files) =>
         if err
-            send error: true, msg:  "Server error occured while retrieving data.", 500
+            send error: true, msg:  "Server error occured", 500
         else
-            folderName = @folder.name.replace ".couchfs-directory-placeholder", ''
+            folderName = @folder.name.replace directoryPlaceholder , ''
             for file in files
                 if (file.name.indexOf(folderName) is 0)
                     file.destroy (err) ->

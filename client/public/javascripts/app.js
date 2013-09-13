@@ -170,119 +170,6 @@ window.require.register("collections/folder", function(exports, require, module)
   })(Backbone.Collection);
   
 });
-window.require.register("helpers", function(exports, require, module) {
-  exports.BrunchApplication = (function() {
-    function BrunchApplication() {
-      var _this = this;
-      $(function() {
-        _this.initialize(_this);
-        return Backbone.history.start();
-      });
-    }
-
-    BrunchApplication.prototype.initializeJQueryExtensions = function() {
-      return $.fn.spin = function(opts, color) {
-        var presets;
-        presets = {
-          tiny: {
-            lines: 8,
-            length: 2,
-            width: 2,
-            radius: 3
-          },
-          small: {
-            lines: 8,
-            length: 1,
-            width: 2,
-            radius: 5
-          },
-          large: {
-            lines: 10,
-            length: 8,
-            width: 4,
-            radius: 8
-          }
-        };
-        if (Spinner) {
-          return this.each(function() {
-            var $this, spinner;
-            $this = $(this);
-            spinner = $this.data("spinner");
-            if (spinner != null) {
-              spinner.stop();
-              return $this.data("spinner", null);
-            } else if (opts !== false) {
-              if (typeof opts === "string") {
-                if (opts in presets) {
-                  opts = presets[opts];
-                } else {
-                  opts = {};
-                }
-                if (color) {
-                  opts.color = color;
-                }
-              }
-              spinner = new Spinner($.extend({
-                color: $this.css("color")
-              }, opts));
-              spinner.spin(this);
-              return $this.data("spinner", spinner);
-            }
-          });
-        } else {
-          console.log("Spinner class not available.");
-          return null;
-        }
-      };
-    };
-
-    BrunchApplication.prototype.initialize = function() {
-      return null;
-    };
-
-    return BrunchApplication;
-
-  })();
-
-  exports.selectAll = function(input) {
-    return input.setSelection(0, input.val().length);
-  };
-
-  exports.slugify = require("./lib/slug");
-
-  exports.getPathRegExp = function(path) {
-    var slashReg;
-    slashReg = new RegExp("/", "g");
-    return "^" + (path.replace(slashReg, "\/"));
-  };
-
-  exports.extractTags = function(description) {
-    var hashTags, tag, tagSlug, tags, _i, _len;
-    hashTags = description.match(/#(\w)*/g);
-    tags = [];
-    if (hashTags != null) {
-      for (_i = 0, _len = hashTags.length; _i < _len; _i++) {
-        tag = hashTags[_i];
-        if (tag === "#t") {
-          tag = "#today";
-        }
-        if (tag === "#w") {
-          tag = "#week";
-        }
-        if (tag === "#m") {
-          tag = "#month";
-        }
-        if (tag !== "#") {
-          tagSlug = tag.substring(1);
-          tagSlug = this.slugify(tagSlug);
-          tags.push(tagSlug);
-        }
-      }
-    }
-    return tags;
-  };
-  
-});
 window.require.register("helpers/client", function(exports, require, module) {
   exports.request = function(type, url, data, callbacks) {
     return $.ajax({
@@ -766,7 +653,6 @@ window.require.register("views/fileslist", function(exports, require, module) {
 
     FilesListView.prototype.upload = function(file) {
       var formdata;
-      console.log(file);
       formdata = new FormData();
       formdata.append('cid', file.cid);
       formdata.append('name', this.repository + file.get('name'));
@@ -775,9 +661,6 @@ window.require.register("views/fileslist", function(exports, require, module) {
         contentType: false,
         data: formdata
       });
-      console.log(this.collection);
-      console.log(file.cid);
-      console.log(this.collection._byId[file.cid]);
       return this.collection._byId[file.cid].render();
     };
 
@@ -819,8 +702,6 @@ window.require.register("views/fileslist_item", function(exports, require, modul
     };
 
     FileListsItemView.prototype.onModelChange = function() {
-      console.log("change model");
-      console.log(this.model);
       return this.render();
     };
 
@@ -1013,7 +894,6 @@ window.require.register("views/folderslist", function(exports, require, module) 
       this.collection.create(folder, {
         success: function(data) {
           folder.name = data.name;
-          console.log(folder);
           return _this.collection.save(folder);
         }
       });
