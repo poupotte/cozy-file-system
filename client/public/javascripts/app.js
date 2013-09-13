@@ -657,11 +657,10 @@ window.require.register("views/fileslist", function(exports, require, module) {
       formdata.append('cid', file.cid);
       formdata.append('name', this.repository + file.get('name'));
       formdata.append('file', file.file);
-      Backbone.sync('create', file, {
+      return Backbone.sync('create', file, {
         contentType: false,
         data: formdata
       });
-      return this.collection._byId[file.cid].render();
     };
 
     return FilesListView;
@@ -823,9 +822,14 @@ window.require.register("views/folder", function(exports, require, module) {
     };
 
     AppView.prototype.onAddFile = function() {
-      var attach;
-      attach = this.uploader.files[0];
-      return this.filesList.addFile(attach);
+      var attach, _i, _len, _ref1, _results;
+      _ref1 = this.uploader.files;
+      _results = [];
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        attach = _ref1[_i];
+        _results.push(this.filesList.addFile(attach));
+      }
+      return _results;
     };
 
     return AppView;

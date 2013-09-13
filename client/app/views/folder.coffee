@@ -62,5 +62,5 @@ module.exports = class AppView extends BaseView
             @foldersList.onAddFolder folder.attributes
 
     onAddFile: ->
-        attach = @uploader.files[0]
-        @filesList.addFile attach
+        for attach in @uploader.files
+            @filesList.addFile attach
