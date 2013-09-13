@@ -5,13 +5,29 @@ before ->
     # Find file
     File.find req.params.id, (err, folder) =>
         if err or not folder
-            send error: true, msg: "File not found", 404
+            send error: true, msg: "Folder not found", 404
         else
             @folder = folder
             next()
 # Make this pre-treatment only before destroy action.
 , only: ['destroy', 'find', 'getFiles','findFiles', 'findFolders']
 
+
+before ->
+    File.all (err, files) ->
+        if err
+            send error: true, msg: "Server error occured", 500
+        else
+            name = req.body.name
+            newName = name + '/' + directoryPlaceholder
+            alreadyExist = false
+            for file in files 
+                if file.name is newName
+                    alreadyExist = true
+                    send error: true, msg: "Folder already exists", 400
+            if not alreadyExist
+                next()
+, only: ['create']
 
 
 action 'findFoldersRoot', ->

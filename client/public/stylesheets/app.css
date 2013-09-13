@@ -704,6 +704,9 @@ li[class^="icon-"].icon-large:before, li[class*=" icon-"].icon-large:before {
   color: #fff;
   text-decoration: none;
 }
+#bar .add.flatbtn #uploader {
+  display: none;
+}
 #content {
   padding: 2em;
 }

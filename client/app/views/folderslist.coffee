@@ -28,9 +28,11 @@ module.exports = class FilesListView extends ViewCollection
     	super
     	@name = @$('#name')
 
-    onAddFolder: (folder) =>
+    onAddFolder: (folder) ->
         @collection.create folder,
             success: (data) =>
-                folder.name = data.name
-                @collection.save folder
-        app.folders.add folder
+                @collection.add data
+                app.folders.add data
+            error: (error) =>
+                @collection.reset folder
+                alert error.msg

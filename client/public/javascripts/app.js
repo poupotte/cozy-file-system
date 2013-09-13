@@ -694,14 +694,7 @@ window.require.register("views/fileslist_item", function(exports, require, modul
     };
 
     FileListsItemView.prototype.initialize = function() {
-      var _this = this;
-      return this.listenTo(this.model, 'change', function() {
-        return onModelChange();
-      });
-    };
-
-    FileListsItemView.prototype.onModelChange = function() {
-      return this.render();
+      return this.listenTo(this.model, 'change:id', this.render());
     };
 
     FileListsItemView.prototype.onDeleteClicked = function() {
@@ -839,7 +832,6 @@ window.require.register("views/folder", function(exports, require, module) {
 });
 window.require.register("views/folderslist", function(exports, require, module) {
   var BaseView, FileView, FilesListView, Folder, FolderView, ViewCollection, app, _ref,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -861,7 +853,6 @@ window.require.register("views/folderslist", function(exports, require, module) 
     __extends(FilesListView, _super);
 
     function FilesListView() {
-      this.onAddFolder = __bind(this.onAddFolder, this);
       _ref = FilesListView.__super__.constructor.apply(this, arguments);
       return _ref;
     }
@@ -895,13 +886,16 @@ window.require.register("views/folderslist", function(exports, require, module) 
 
     FilesListView.prototype.onAddFolder = function(folder) {
       var _this = this;
-      this.collection.create(folder, {
+      return this.collection.create(folder, {
         success: function(data) {
-          folder.name = data.name;
-          return _this.collection.save(folder);
+          _this.collection.add(data);
+          return app.folders.add(data);
+        },
+        error: function(error) {
+          _this.collection.reset(folder);
+          return alert(error.msg);
         }
       });
-      return app.folders.add(folder);
     };
 
     return FilesListView;
@@ -910,39 +904,39 @@ window.require.register("views/folderslist", function(exports, require, module) 
   
 });
 window.require.register("views/folderslist_item", function(exports, require, module) {
-  var BaseView, FileListsItemView, _ref,
+  var BaseView, FolderListsItemView, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   BaseView = require('../lib/base_view');
 
-  module.exports = FileListsItemView = (function(_super) {
-    __extends(FileListsItemView, _super);
+  module.exports = FolderListsItemView = (function(_super) {
+    __extends(FolderListsItemView, _super);
 
-    function FileListsItemView() {
-      _ref = FileListsItemView.__super__.constructor.apply(this, arguments);
+    function FolderListsItemView() {
+      _ref = FolderListsItemView.__super__.constructor.apply(this, arguments);
       return _ref;
     }
 
-    FileListsItemView.prototype.className = 'folder';
+    FolderListsItemView.prototype.className = 'folder';
 
-    FileListsItemView.prototype.tagName = 'div';
+    FolderListsItemView.prototype.tagName = 'div';
 
-    FileListsItemView.prototype.template = require('./templates/folderslist_item');
+    FolderListsItemView.prototype.template = require('./templates/folderslist_item');
 
-    FileListsItemView.prototype.events = function() {
+    FolderListsItemView.prototype.events = function() {
       return {
         'click button.delete': 'onDeleteClicked',
         'click .show-button': 'onShowClicked'
       };
     };
 
-    FileListsItemView.prototype.initialize = function() {
-      FileListsItemView.__super__.initialize.apply(this, arguments);
-      return this.listenTo(this.model, 'change:name', this.render);
+    FolderListsItemView.prototype.initialize = function() {
+      FolderListsItemView.__super__.initialize.apply(this, arguments);
+      return this.listenTo(this.model, 'change:id', this.render());
     };
 
-    FileListsItemView.prototype.onDeleteClicked = function() {
+    FolderListsItemView.prototype.onDeleteClicked = function() {
       if (confirm('Are you sure ?')) {
         this.$('.delete-button').html("deleting...");
         return this.model.destroy({
@@ -954,7 +948,7 @@ window.require.register("views/folderslist_item", function(exports, require, mod
       }
     };
 
-    return FileListsItemView;
+    return FolderListsItemView;
 
   })(BaseView);
   

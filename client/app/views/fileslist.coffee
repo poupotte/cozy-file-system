@@ -40,4 +40,3 @@ module.exports = class FilesListView extends ViewCollection
         Backbone.sync 'create', file,
             contentType: false
             data: formdata
-        #@collection._byId[file.cid].render()
