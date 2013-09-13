@@ -621,72 +621,13 @@ window.require.register("models/folder", function(exports, require, module) {
   })(Backbone.Model);
   
 });
-window.require.register("models/foler", function(exports, require, module) {
-  var Bookmark, client, _ref,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  client = require("../helpers/client");
-
-  module.exports = Bookmark = (function(_super) {
-    __extends(Bookmark, _super);
-
-    function Bookmark() {
-      _ref = Bookmark.__super__.constructor.apply(this, arguments);
-      return _ref;
-    }
-
-    Bookmark.prototype.rootUrl = 'files';
-
-    Bookmark.prototype.prepareCallbacks = function(callbacks, presuccess, preerror) {
-      var error, success, _ref1,
-        _this = this;
-      _ref1 = callbacks || {}, success = _ref1.success, error = _ref1.error;
-      if (presuccess == null) {
-        presuccess = function(data) {
-          return _this.set(data.app);
-        };
-      }
-      this.trigger('request', this, null, callbacks);
-      callbacks.success = function(data) {
-        if (presuccess) {
-          presuccess(data);
-        }
-        _this.trigger('sync', _this, null, callbacks);
-        if (success) {
-          return success(data);
-        }
-      };
-      return callbacks.error = function(jqXHR) {
-        if (preerror) {
-          preerror(jqXHR);
-        }
-        _this.trigger('error', _this, jqXHR, {});
-        if (error) {
-          return error(jqXHR);
-        }
-      };
-    };
-
-    Bookmark.prototype.getAttachment = function(file, callbacks) {
-      this.prepareCallbacks(callbacks);
-      return client.post("/files/" + this.id + "/getAttachment/" + this.name, callbacks);
-    };
-
-    return Bookmark;
-
-  })(Backbone.Model);
-  
-});
 window.require.register("router", function(exports, require, module) {
-  var Folder, FolderView, HomeView, Router, app, _ref,
+  var Folder, FolderView, Router, app, _ref,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   app = require('application');
-
-  HomeView = require('views/home');
 
   FolderView = require('views/folder');
 
@@ -709,7 +650,8 @@ window.require.register("router", function(exports, require, module) {
     Router.prototype.main = function() {
       var folder;
       folder = new Folder({
-        id: "root"
+        id: "root",
+        rep: ""
       });
       return this.displayView(new FolderView({
         model: folder
@@ -723,6 +665,9 @@ window.require.register("router", function(exports, require, module) {
         id: id
       });
       return folder.fetch().done(function() {
+        var rep;
+        rep = folder.attributes.slug.replace('/.couchfs-directory-placeholder', '');
+        folder.attributes.rep = rep;
         return _this.displayView(new FolderView({
           model: folder
         }));
@@ -807,14 +752,19 @@ window.require.register("views/fileslist", function(exports, require, module) {
 
     FilesListView.prototype.upload = function(file) {
       var formdata;
+      console.log(file);
       formdata = new FormData();
       formdata.append('cid', file.cid);
       formdata.append('name', this.repository + file.get('name'));
       formdata.append('file', file.file);
-      return Backbone.sync('create', file, {
+      Backbone.sync('create', file, {
         contentType: false,
         data: formdata
       });
+      console.log(this.collection);
+      console.log(file.cid);
+      console.log(this.collection._byId[file.cid]);
+      return this.collection._byId[file.cid].render();
     };
 
     return FilesListView;
@@ -845,6 +795,19 @@ window.require.register("views/fileslist_item", function(exports, require, modul
 
     FileListsItemView.prototype.events = {
       'click button.delete': 'onDeleteClicked'
+    };
+
+    FileListsItemView.prototype.initialize = function() {
+      var _this = this;
+      return this.listenTo(this.model, 'change', function() {
+        return onModelChange();
+      });
+    };
+
+    FileListsItemView.prototype.onModelChange = function() {
+      console.log("change model");
+      console.log(this.model);
+      return this.render();
     };
 
     FileListsItemView.prototype.onDeleteClicked = function() {
@@ -1056,7 +1019,7 @@ window.require.register("views/folderslist_item", function(exports, require, mod
 
     FileListsItemView.prototype.events = function() {
       return {
-        'click .delete-button': 'onDeleteClicked',
+        'click button.delete': 'onDeleteClicked',
         'click .show-button': 'onShowClicked'
       };
     };
@@ -1081,78 +1044,6 @@ window.require.register("views/folderslist_item", function(exports, require, mod
   })(BaseView);
   
 });
-window.require.register("views/home", function(exports, require, module) {
-  var AppView, BaseView, FilesList, Folder, FoldersList, Uploader, app, _ref,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  BaseView = require('../lib/base_view');
-
-  Uploader = require('./uploader');
-
-  FilesList = require('./fileslist');
-
-  FoldersList = require('./folderslist');
-
-  Folder = require('../models/folder');
-
-  app = require('application');
-
-  module.exports = AppView = (function(_super) {
-    __extends(AppView, _super);
-
-    function AppView() {
-      _ref = AppView.__super__.constructor.apply(this, arguments);
-      return _ref;
-    }
-
-    AppView.prototype.el = 'body.application';
-
-    AppView.prototype.template = require('./templates/home');
-
-    AppView.prototype.events = function() {
-      return {
-        'click .add': 'onAddFolder'
-      };
-    };
-
-    AppView.prototype.afterRender = function() {
-      var _this = this;
-      AppView.__super__.afterRender.apply(this, arguments);
-      this.name = this.$('#name');
-      return app.files.fetch({
-        success: function(collection) {
-          _this.filesList = new FilesList({
-            collection: collection
-          });
-          return app.folders.fetch({
-            success: function(collection) {
-              _this.foldersList = new FoldersList({
-                collection: collection
-              });
-              _this.$('#files').append(_this.filesList.$el);
-              _this.$('#folders').append(_this.foldersList.$el);
-              _this.filesList.render();
-              return _this.foldersList.render();
-            }
-          });
-        }
-      });
-    };
-
-    AppView.prototype.onAddFolder = function() {
-      var folder;
-      folder = new Folder({
-        name: this.repository + this.name.val()
-      });
-      return this.foldersList.onAddFolder(folder);
-    };
-
-    return AppView;
-
-  })(BaseView);
-  
-});
 window.require.register("views/templates/fileslist", function(exports, require, module) {
   module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
   attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
@@ -1170,9 +1061,11 @@ window.require.register("views/templates/fileslist_item", function(exports, requ
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<a');
+  buf.push('<i class="icon-file"> </i><a');
   buf.push(attrs({ 'href':("files/" + (model.id) + "/attach/" + (model.name) + ""), 'target':("_blank") }, {"href":true,"target":true}));
-  buf.push('>' + escape((interp = model.name) == null ? '' : interp) + '</a><button class="delete flatbtn"><i class="icon-remove icon-white"></i></button>');
+  buf.push('> ' + escape((interp = model.name) == null ? '' : interp) + '  </a><button class="delete"><i class="icon-trash icon-white"> </i></button><a');
+  buf.push(attrs({ 'href':("files/" + (model.id) + "/attach/" + (model.name) + ""), 'download':("" + (model.name) + "") }, {"href":true,"download":true}));
+  buf.push('> <i class="icon-download icon-white"></i></a>');
   }
   return buf.join("");
   };
@@ -1183,20 +1076,7 @@ window.require.register("views/templates/folder", function(exports, require, mod
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<div id="h4">' + escape((interp = model.name) == null ? '' : interp) + '</div><input id="uploader" type="file"/><input type="text" value="" id="name" placeholder="Folder name" class="input-block-level"/><button class="add"> <i class="icon-folder-close icon-white"></i></button><div id="content"><div id="files"></div><div id="folders"></div></div>');
-  }
-  return buf.join("");
-  };
-});
-window.require.register("views/templates/folderlist_item", function(exports, require, module) {
-  module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
-  attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
-  var buf = [];
-  with (locals || {}) {
-  var interp;
-  buf.push('<a');
-  buf.push(attrs({ 'href':("files/" + (model.id) + "/attach/" + (model.name) + ""), 'target':("_blank") }, {"href":true,"target":true}));
-  buf.push('>' + escape((interp = model.name) == null ? '' : interp) + '</a><button class="delete flatbtn"><i class="icon-remove icon-white"></i></button>');
+  buf.push('<div id="bar"><input id="uploader" type="file" class="flatbtn"/><input type="text" value="" id="name" placeholder="Folder name" class="input-block-level"/><button class="add flatbtn">Create new folder</button></div><div id="content"><div id="h4">' + escape((interp = model.rep) == null ? '' : interp) + '</div><div id="folders"></div><div id="files"></div></div>');
   }
   return buf.join("");
   };
@@ -1207,7 +1087,7 @@ window.require.register("views/templates/folderslist", function(exports, require
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<div id="content"><div id="folder-list"></div></div>');
+  buf.push('<div id="folder-list"></div>');
   }
   return buf.join("");
   };
@@ -1218,20 +1098,9 @@ window.require.register("views/templates/folderslist_item", function(exports, re
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<a');
+  buf.push('<i class="icon-folder-close"></i><a');
   buf.push(attrs({ 'href':("#folders/" + (model.id) + "") }, {"href":true}));
-  buf.push('>' + escape((interp = model.name) == null ? '' : interp) + '</a><button class="delete-button">Delete</button>');
-  }
-  return buf.join("");
-  };
-});
-window.require.register("views/templates/home", function(exports, require, module) {
-  module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
-  attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
-  var buf = [];
-  with (locals || {}) {
-  var interp;
-  buf.push('<input id="uploader" type="file"/><input type="text" value="" id="name" placeholder="Folder name" class="input-block-level"/><button class="add"> <i class="icon-folder-close icon-white"></i></button><div id="content"><div id="files"></div><div id="folders"></div></div>');
+  buf.push('> ' + escape((interp = model.name) == null ? '' : interp) + '  </a><button class="delete"><i class="icon-trash icon-white"> </i></button>');
   }
   return buf.join("");
   };

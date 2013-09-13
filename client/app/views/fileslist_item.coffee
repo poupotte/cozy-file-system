@@ -15,6 +15,17 @@ module.exports = class FileListsItemView extends BaseView
     events:
         'click button.delete': 'onDeleteClicked'
 
+
+    initialize: ->
+        @listenTo @model, 'change', => onModelChange()
+
+    onModelChange: ->
+        console.log "change model"
+        console.log @model
+        @render()
+
+
+
     onDeleteClicked: ->
         @$('button.delete').html "deleting..."
         @model.destroy

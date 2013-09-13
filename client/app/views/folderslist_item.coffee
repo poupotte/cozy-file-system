@@ -13,7 +13,7 @@ module.exports = class FileListsItemView extends BaseView
 
     # Register event
     events: ->
-        'click .delete-button': 'onDeleteClicked'
+        'click button.delete': 'onDeleteClicked'
         'click .show-button': 'onShowClicked'
 
     initialize: ->

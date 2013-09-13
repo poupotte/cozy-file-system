@@ -5,36 +5,73 @@ basecolor = lightgrey
 orange = #fe8800
 blue = #34a6ff
 
+.flatbtn
+    margin-top 10px
+    margin-bottom 10px
+    font-size 18px
+    margin 2px 1%
+    padding 10px 2%
+    background-color blue
+    color white
+    border 0
+
+.flatbtn:hover 
+    text-decoration:underline
+
+.flatbtn:active 
+    text-decoration:underline
+    color: orange
+
+
+#bar
+    background-color: Gainsboro
+
+    .input-block-level
+        margin-left 30px
+
+    .add.flatbtn
+        background-color blue
+        color white
+        text-decoration none
 
 #content
     padding: 2em
 
+#h4
+    margin-top 10px
+    margin-left 40px
+    font-weight: bold
+
 #file-list    
 
     .file 
-        display block
         margin-left 20px
         margin-top 20px
         height 30px
-        transition .2s ease-out
-        -webkit-transition .2s ease-out
+
+        .delete
+            background-color: white
+            margin-left 5px
+
+        .download
+            background-color: white
 
     a:link 
         text-decoration:none
-        color: blue
+        color: black
 
     a:visited 
         text-decoration:none
-        color: orange
+        color: black
 
     a:hover 
         text-decoration:underline
 
     a:active 
         text-decoration:underline
-        color: orange
+        color: black
 
-    a.flatbtn
+    a.button
         float: right
         text-align: left
         width: auto
@@ -42,9 +79,10 @@ blue = #34a6ff
         line-height: 16px
         font-size: 16px
         text-transform: lowercase
+        background-color: white
 
     a.flatbtn.active
-        background-color: orange
+        background-color: black
 
 #uploader
     margin-left 20px
@@ -52,20 +90,29 @@ blue = #34a6ff
     margin-bottom 20px
 
 #folder-list
+ 
     .folder 
-        height 110px
-        float left
-        padding 10px
+        display block
+        margin-left 20px
+        margin-top 20px
+        font-weight: bold
+        height 30px
 
-        a
-            display block
-            margin-right 10px
-            box-sizing border-box
-            border-radius 2px
-            border 1px solid blue
-            box-shadow 3px 3px 3px darkgrey
-            transition .2s ease-out
-            -webkit-transition .2s ease-out
-            overflow hidden
-            width 90px
-            height 90px
+        .delete
+            background-color: white
+
+    a:link 
+        text-decoration:none
+        color: black
+
+    a:visited 
+        text-decoration:none
+        color: black
+
+    a:hover 
+        text-decoration:underline
+
+    a:active 
+        text-decoration:underline
+        color: black
+ 

@@ -676,33 +676,70 @@ li[class^="icon-"].icon-large:before, li[class*=" icon-"].icon-large:before {
 .icon-paste:before                { content: "\f0ea"; }
 
 .icon-user-md:before              { content: "\f200"; }
+.flatbtn {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  font-size: 18px;
+  margin: 2px 1%;
+  padding: 10px 2%;
+  background-color: #34a6ff;
+  color: #fff;
+  border: 0;
+}
+.flatbtn:hover {
+  text-decoration: underline;
+}
+.flatbtn:active {
+  text-decoration: underline;
+  color: #fe8800;
+}
+#bar {
+  background-color: Gainsboro;
+}
+#bar .input-block-level {
+  margin-left: 30px;
+}
+#bar .add.flatbtn {
+  background-color: #34a6ff;
+  color: #fff;
+  text-decoration: none;
+}
 #content {
   padding: 2em;
 }
+#h4 {
+  margin-top: 10px;
+  margin-left: 40px;
+  font-weight: bold;
+}
 #file-list .file {
-  display: block;
   margin-left: 20px;
   margin-top: 20px;
   height: 30px;
-  transition: 0.2s ease-out;
-  -webkit-transition: 0.2s ease-out;
+}
+#file-list .file .delete {
+  background-color: #fff;
+  margin-left: 5px;
+}
+#file-list .file .download {
+  background-color: #fff;
 }
 #file-list a:link {
   text-decoration: none;
-  color: #34a6ff;
+  color: #000;
 }
 #file-list a:visited {
   text-decoration: none;
-  color: #fe8800;
+  color: #000;
 }
 #file-list a:hover {
   text-decoration: underline;
 }
 #file-list a:active {
   text-decoration: underline;
-  color: #fe8800;
+  color: #000;
 }
-#file-list a.flatbtn {
+#file-list a.button {
   float: right;
   text-align: left;
   width: auto;
@@ -710,9 +747,10 @@ li[class^="icon-"].icon-large:before, li[class*=" icon-"].icon-large:before {
   line-height: 16px;
   font-size: 16px;
   text-transform: lowercase;
+  background-color: #fff;
 }
 #file-list a.flatbtn.active {
-  background-color: #fe8800;
+  background-color: #000;
 }
 #uploader {
   margin-left: 20px;
@@ -720,22 +758,29 @@ li[class^="icon-"].icon-large:before, li[class*=" icon-"].icon-large:before {
   margin-bottom: 20px;
 }
 #folder-list .folder {
-  height: 110px;
-  float: left;
-  padding: 10px;
-}
-#folder-list .folder a {
   display: block;
-  margin-right: 10px;
-  box-sizing: border-box;
-  border-radius: 2px;
-  border: 1px solid #34a6ff;
-  box-shadow: 3px 3px 3px #444;
-  transition: 0.2s ease-out;
-  -webkit-transition: 0.2s ease-out;
-  overflow: hidden;
-  width: 90px;
-  height: 90px;
+  margin-left: 20px;
+  margin-top: 20px;
+  font-weight: bold;
+  height: 30px;
+}
+#folder-list .folder .delete {
+  background-color: #fff;
+}
+#folder-list a:link {
+  text-decoration: none;
+  color: #000;
+}
+#folder-list a:visited {
+  text-decoration: none;
+  color: #000;
+}
+#folder-list a:hover {
+  text-decoration: underline;
+}
+#folder-list a:active {
+  text-decoration: underline;
+  color: #000;
 }
 .chromeframe { margin: 0.2em 0; background: #ccc; color: #000; padding: 0.2em 0; }
 .ir { display: block; border: 0; text-indent: -999em; overflow: hidden; background-color: transparent; background-repeat: no-repeat; text-align: left; direction: ltr; *line-height: 0; }

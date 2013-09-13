@@ -1,8 +1,8 @@
-#h4 #{model.name}
-input#uploader(type="file")
-input.input-block-level(type="text", value="", id="name", placeholder="Folder name")
-button.add 
-    i.icon-folder-close.icon-white
+#bar
+    input.flatbtn#uploader(type="file") 
+    input.input-block-level(type="text", value="", id="name", placeholder="Folder name")
+    button.add.flatbtn Create new folder
 #content
-    #files
+    #h4 #{model.rep}
     #folders
+    #files

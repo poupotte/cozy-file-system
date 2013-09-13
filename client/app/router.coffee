@@ -1,5 +1,4 @@
 app = require 'application'
-HomeView = require 'views/home'
 FolderView = require 'views/folder'
 Folder = require 'models/folder'
 
@@ -14,16 +13,17 @@ module.exports = class Router extends Backbone.Router
     main: ->
         # We create the collection here but do it where it fits the better for
         # your case.
-        folder = new Folder id:"root"
+        folder = new Folder id:"root", rep:""
         @displayView new FolderView
             model: folder
-
     folder: (id) ->
         folder = app.folders.get(id) or new Folder id:id
         folder.fetch()
         .done =>
+            rep = folder.attributes.slug.replace '/.couchfs-directory-placeholder', ''
+            folder.attributes.rep = rep
             @displayView new FolderView
-            	model: folder
+                model: folder
         .fail =>
             alert t 'this album does not exist'
             @navigate 'folders', true 
