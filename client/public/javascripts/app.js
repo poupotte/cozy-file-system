@@ -571,6 +571,20 @@ window.require.register("models/folder", function(exports, require, module) {
 
     Bookmark.prototype.rootUrl = 'folders';
 
+    Bookmark.prototype.validate = function(attrs, options) {
+      var errors;
+      errors = [];
+      if (!attrs.name || attrs.name === "") {
+        errors.push({
+          field: 'name',
+          value: "A name must be set."
+        });
+      }
+      if (errors.length > 0) {
+        return errors;
+      }
+    };
+
     Bookmark.prototype.prepareCallbacks = function(callbacks, presuccess, preerror) {
       var error, success, _ref1,
         _this = this;
@@ -913,11 +927,16 @@ window.require.register("views/folder", function(exports, require, module) {
     };
 
     AppView.prototype.onAddFolder = function() {
-      var folder;
+      var err, folder;
       folder = new Folder({
         name: this.repository + this.name.val()
       });
-      return this.foldersList.onAddFolder(folder);
+      err = folder.validate(folder.attributes);
+      if (err) {
+        return alert("The folder name is empty");
+      } else {
+        return this.foldersList.onAddFolder(folder.attributes);
+      }
     };
 
     AppView.prototype.onAddFile = function() {

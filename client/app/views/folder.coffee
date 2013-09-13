@@ -55,7 +55,11 @@ module.exports = class AppView extends BaseView
 
     onAddFolder: ->
         folder = new Folder name: @repository + @name.val()
-        @foldersList.onAddFolder folder
+        err = folder.validate folder.attributes
+        if err
+            alert "The folder name is empty"
+        else
+            @foldersList.onAddFolder folder.attributes
 
     onAddFile: ->
         attach = @uploader.files[0]

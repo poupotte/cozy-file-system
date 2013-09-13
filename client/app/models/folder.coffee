@@ -4,7 +4,19 @@ module.exports = class Bookmark extends Backbone.Model
 
     # This field is required to know from where data should be loaded.
     # We'll cover it better in the backend part.
-    rootUrl: 'folders'
+    rootUrl: 'folders' 
+
+    validate: (attrs, options) ->
+
+        errors = []
+        if not attrs.name or attrs.name is ""
+            errors.push
+                field: 'name'
+                value: "A name must be set."
+
+        if errors.length > 0
+            return errors
+        return 
 
     prepareCallbacks: (callbacks, presuccess, preerror) ->
         {success, error} = callbacks or {}
