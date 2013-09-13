@@ -19,7 +19,7 @@ module.exports = class FilesListView extends ViewCollection
         'click .add': 'onAddFolder'
 
     initialize: (data) ->
-        super
+        super        
         @repository = ""
         if data.repository?
             @repository = data.repository
@@ -28,7 +28,10 @@ module.exports = class FilesListView extends ViewCollection
     	super
     	@name = @$('#name')
 
-    onAddFolder: (folder) ->
-        console.log "onAddFolders"
-        @collection.create folder
+    onAddFolder: (folder) =>
+        @collection.create folder,
+            success: (data) =>
+                folder.name = data.name
+                console.log folder
+                @collection.save folder
         app.folders.add folder

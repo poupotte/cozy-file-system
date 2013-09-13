@@ -18,12 +18,13 @@ module.exports = class FileListsItemView extends BaseView
 
     initialize: ->
         super
-        @listenTo @model, 'change:id', @render
+        @listenTo @model, 'change:name', @render
 
     onDeleteClicked: ->
-        @$('.delete-button').html "deleting..."
-        @model.destroy
-            error: ->
-                alert "Server error occured, file was not deleted."
-                @$('.delete-button').html "delete"
+        if confirm 'Are you sure ?'
+            @$('.delete-button').html "deleting..."
+            @model.destroy
+                error: ->
+                    alert "Server error occured, file was not deleted."
+                    @$('.delete-button').html "delete"
 

@@ -825,13 +825,15 @@ window.require.register("views/fileslist_item", function(exports, require, modul
     };
 
     FileListsItemView.prototype.onDeleteClicked = function() {
-      this.$('button.delete').html("deleting...");
-      return this.model.destroy({
-        error: function() {
-          alert("Server error occured, file was not deleted.");
-          return this.$('button.delete').html("delete");
-        }
-      });
+      if (confirm('Are you sure ?')) {
+        this.$('button.delete').html("deleting...");
+        return this.model.destroy({
+          error: function() {
+            alert("Server error occured, file was not deleted.");
+            return this.$('button.delete').html("delete");
+          }
+        });
+      }
     };
 
     return FileListsItemView;
@@ -952,6 +954,7 @@ window.require.register("views/folder", function(exports, require, module) {
 });
 window.require.register("views/folderslist", function(exports, require, module) {
   var BaseView, FileView, FilesListView, Folder, FolderView, ViewCollection, app, _ref,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -973,6 +976,7 @@ window.require.register("views/folderslist", function(exports, require, module) 
     __extends(FilesListView, _super);
 
     function FilesListView() {
+      this.onAddFolder = __bind(this.onAddFolder, this);
       _ref = FilesListView.__super__.constructor.apply(this, arguments);
       return _ref;
     }
@@ -1005,8 +1009,14 @@ window.require.register("views/folderslist", function(exports, require, module) 
     };
 
     FilesListView.prototype.onAddFolder = function(folder) {
-      console.log("onAddFolders");
-      this.collection.create(folder);
+      var _this = this;
+      this.collection.create(folder, {
+        success: function(data) {
+          folder.name = data.name;
+          console.log(folder);
+          return _this.collection.save(folder);
+        }
+      });
       return app.folders.add(folder);
     };
 
@@ -1045,17 +1055,19 @@ window.require.register("views/folderslist_item", function(exports, require, mod
 
     FileListsItemView.prototype.initialize = function() {
       FileListsItemView.__super__.initialize.apply(this, arguments);
-      return this.listenTo(this.model, 'change:id', this.render);
+      return this.listenTo(this.model, 'change:name', this.render);
     };
 
     FileListsItemView.prototype.onDeleteClicked = function() {
-      this.$('.delete-button').html("deleting...");
-      return this.model.destroy({
-        error: function() {
-          alert("Server error occured, file was not deleted.");
-          return this.$('.delete-button').html("delete");
-        }
-      });
+      if (confirm('Are you sure ?')) {
+        this.$('.delete-button').html("deleting...");
+        return this.model.destroy({
+          error: function() {
+            alert("Server error occured, file was not deleted.");
+            return this.$('.delete-button').html("delete");
+          }
+        });
+      }
     };
 
     return FileListsItemView;
