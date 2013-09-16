@@ -11,9 +11,3 @@ module.exports = (compound) ->
         if err
             compound.logger.write "File.All requests, cannot be created"
             compound.logger.write err
-
-
-    Folder.defineRequest "all", all, (err) ->
-        if err
-            compound.logger.write "Folder.All requests, cannot be created"
-            compound.logger.write err

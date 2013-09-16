@@ -53,7 +53,7 @@ module.exports = class AppView extends BaseView
                 @$('#folders').append @foldersList.$el 
                 @foldersList.render()
 
-    onAddFolder: ->
+    onAddFolder: =>
         folder = new Folder name: @repository + @name.val()
         err = folder.validate folder.attributes
         if err
@@ -61,6 +61,6 @@ module.exports = class AppView extends BaseView
         else
             @foldersList.onAddFolder folder.attributes
 
-    onAddFile: ->
+    onAddFile: =>
         for attach in @uploader.files
             @filesList.addFile attach
