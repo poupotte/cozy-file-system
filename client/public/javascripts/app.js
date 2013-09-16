@@ -652,14 +652,18 @@ window.require.register("views/fileslist", function(exports, require, module) {
     };
 
     FilesListView.prototype.upload = function(file) {
-      var formdata;
+      var formdata,
+        _this = this;
       formdata = new FormData();
       formdata.append('cid', file.cid);
       formdata.append('name', this.repository + file.get('name'));
       formdata.append('file', file.file);
       return Backbone.sync('create', file, {
         contentType: false,
-        data: formdata
+        data: formdata,
+        success: function(data) {
+          return file.set(data);
+        }
       });
     };
 
@@ -694,7 +698,10 @@ window.require.register("views/fileslist_item", function(exports, require, modul
     };
 
     FileListsItemView.prototype.initialize = function() {
-      return this.listenTo(this.model, 'change:id', this.render());
+      var _this = this;
+      return this.listenTo(this.model, 'change:id', function() {
+        return _this.render();
+      });
     };
 
     FileListsItemView.prototype.onDeleteClicked = function() {
@@ -865,12 +872,6 @@ window.require.register("views/folderslist", function(exports, require, module) 
 
     FilesListView.views = {};
 
-    FilesListView.prototype.events = function() {
-      return {
-        'click .add': 'onAddFolder'
-      };
-    };
-
     FilesListView.prototype.initialize = function(data) {
       FilesListView.__super__.initialize.apply(this, arguments);
       this.repository = "";
@@ -888,7 +889,6 @@ window.require.register("views/folderslist", function(exports, require, module) 
       var _this = this;
       return this.collection.create(folder, {
         success: function(data) {
-          _this.collection.add(data);
           return app.folders.add(data);
         },
         error: function(error) {
@@ -932,17 +932,21 @@ window.require.register("views/folderslist_item", function(exports, require, mod
     };
 
     FolderListsItemView.prototype.initialize = function() {
+      var _this = this;
       FolderListsItemView.__super__.initialize.apply(this, arguments);
-      return this.listenTo(this.model, 'change:id', this.render());
+      this.listenTo(this.model, 'change:id', function() {
+        return _this.render();
+      });
+      return this.listenTo(this.model, 'change:name', function() {
+        return _this.render();
+      });
     };
 
     FolderListsItemView.prototype.onDeleteClicked = function() {
       if (confirm('Are you sure ?')) {
-        this.$('.delete-button').html("deleting...");
         return this.model.destroy({
           error: function() {
-            alert("Server error occured, file was not deleted.");
-            return this.$('.delete-button').html("delete");
+            return alert("Server error occured, folder was not deleted.");
           }
         });
       }

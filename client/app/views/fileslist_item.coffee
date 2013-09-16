@@ -16,7 +16,7 @@ module.exports = class FileListsItemView extends BaseView
         'click button.delete': 'onDeleteClicked'
 
     initialize: ->
-        @listenTo @model, 'change:id', @render()
+        @listenTo @model, 'change:id', => @render()
 
     onDeleteClicked: ->
         if confirm 'Are you sure ?'

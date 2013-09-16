@@ -15,8 +15,6 @@ module.exports = class FilesListView extends ViewCollection
     collectionEl: '#folder-list'
     @views = {}
 
-    events: -> 	
-        'click .add': 'onAddFolder'
 
     initialize: (data) ->
         super        
@@ -31,7 +29,6 @@ module.exports = class FilesListView extends ViewCollection
     onAddFolder: (folder) ->
         @collection.create folder,
             success: (data) =>
-                @collection.add data
                 app.folders.add data
             error: (error) =>
                 @collection.reset folder

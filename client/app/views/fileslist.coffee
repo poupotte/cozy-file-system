@@ -40,3 +40,5 @@ module.exports = class FilesListView extends ViewCollection
         Backbone.sync 'create', file,
             contentType: false
             data: formdata
+            success: (data) =>
+                file.set data

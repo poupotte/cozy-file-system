@@ -63,7 +63,8 @@ action 'create', ->
         if err
             send error: true, msg: "Server error while creating folder.", 500
         else
-            newFolder.name = name
+            folderName = name.split('/')
+            newFolder.name = folderName[folderName.length-1]
             send newFolder, 200
 
 action 'find', ->
