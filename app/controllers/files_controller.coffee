@@ -1,3 +1,5 @@
+fs = require 'fs'
+
 before ->
     # Find file
     File.find req.params.id, (err, file) =>
@@ -30,9 +32,10 @@ action 'create', ->
         else
             newfile.attachFile file.path, {"name": file.name}, (err) ->
                 if err
-                    send error: true, msg: "Server error while add attachment" +
-                        " file.", 500
-                else
+                    console.log "[Error]: " + err
+                fs.unlink file.path, (err) ->
+                    if err
+                        console.log 'Could not delete', file.path
                     send newfile, 200
 
 
