@@ -523,7 +523,7 @@ window.require.register("models/folder", function(exports, require, module) {
   
 });
 window.require.register("router", function(exports, require, module) {
-  var Folder, FolderView, Router, app, _ref,
+  var Folder, FolderView, Router, app, directoryPlaceholder, _ref,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -533,6 +533,8 @@ window.require.register("router", function(exports, require, module) {
   FolderView = require('views/folder');
 
   Folder = require('models/folder');
+
+  directoryPlaceholder = '/.couchfs-directory-placeholder';
 
   module.exports = Router = (function(_super) {
     __extends(Router, _super);
@@ -560,22 +562,30 @@ window.require.register("router", function(exports, require, module) {
     };
 
     Router.prototype.folder = function(id) {
-      var folder,
+      var folder, initView,
         _this = this;
-      folder = app.folders.get(id) || new Folder({
-        id: id
-      });
-      return folder.fetch().done(function() {
+      initView = function(folder) {
         var rep;
-        rep = folder.attributes.slug.replace('/.couchfs-directory-placeholder', '');
+        rep = folder.attributes.slug.replace(directoryPlaceholder, '');
         folder.attributes.rep = rep;
         return _this.displayView(new FolderView({
           model: folder
         }));
-      }).fail(function() {
-        alert(t('this album does not exist'));
-        return _this.navigate('folders', true);
-      });
+      };
+      if (app.folders.get(id)) {
+        folder = app.folders.get(id);
+        return initView(folder);
+      } else {
+        folder = new Folder({
+          id: id
+        });
+        return folder.get({
+          success: function(data) {
+            folder.set(data);
+            return initView(folder);
+          }
+        });
+      }
     };
 
     Router.prototype.displayView = function(view) {
