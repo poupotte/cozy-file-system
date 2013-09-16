@@ -88,7 +88,17 @@ window.require.register("application", function(exports, require, module) {
 
   module.exports = {
     initialize: function() {
-      var Router;
+      var Router, e, locales;
+      this.locale = window.locale;
+      this.polyglot = new Polyglot();
+      try {
+        locales = require('locales/' + this.locale);
+      } catch (_error) {
+        e = _error;
+        locales = require('locales/en');
+      }
+      this.polyglot.extend(locales);
+      window.t = this.polyglot.t.bind(this.polyglot);
       Router = require('router');
       this.router = new Router();
       this.folders = new FolderCollection();
@@ -204,8 +214,61 @@ window.require.register("initialize", function(exports, require, module) {
   app = require('application');
 
   $(function() {
-    require('lib/app_helpers');
-    return app.initialize();
+    jQuery.event.props.push('dataTransfer');
+    app.initialize();
+    return $.fn.spin = function(opts, color) {
+      var nullapp, presets;
+      presets = {
+        tiny: {
+          lines: 8,
+          length: 2,
+          width: 2,
+          radius: 3
+        },
+        small: {
+          lines: 8,
+          length: 1,
+          width: 2,
+          radius: 5
+        },
+        large: {
+          lines: 10,
+          length: 8,
+          width: 4,
+          radius: 8
+        }
+      };
+      if (Spinner) {
+        return this.each(function() {
+          var $this, spinner;
+          $this = $(this);
+          spinner = $this.data("spinner");
+          if (spinner != null) {
+            spinner.stop();
+            return $this.data("spinner", null);
+          } else if (opts !== false) {
+            if (typeof opts === "string") {
+              if (opts in presets) {
+                opts = presets[opts];
+              } else {
+                opts = {};
+              }
+              if (color) {
+                opts.color = color;
+              }
+            }
+            spinner = new Spinner($.extend({
+              color: $this.css("color")
+            }, opts));
+            spinner.spin(this);
+            return $this.data("spinner", spinner);
+          }
+        });
+      } else {
+        console.log("Spinner class not available.");
+        return nullapp = require('application');
+      }
+    };
   });
   
 });
@@ -399,7 +462,7 @@ window.require.register("models/file", function(exports, require, module) {
       return _ref;
     }
 
-    Bookmark.prototype.rootUrl = 'files';
+    Bookmark.prototype.rootUrl = 'files/';
 
     Bookmark.prototype.prepareCallbacks = function(callbacks, presuccess, preerror) {
       var error, success, _ref1,
@@ -433,7 +496,7 @@ window.require.register("models/file", function(exports, require, module) {
 
     Bookmark.prototype.getAttachment = function(file, callbacks) {
       this.prepareCallbacks(callbacks);
-      return client.post("/files/" + this.id + "/getAttachment/" + this.name, callbacks);
+      return client.post("files/" + this.id + "/getAttachment/" + this.name, callbacks);
     };
 
     return Bookmark;
@@ -456,7 +519,7 @@ window.require.register("models/folder", function(exports, require, module) {
       return _ref;
     }
 
-    Bookmark.prototype.rootUrl = 'folders';
+    Bookmark.prototype.rootUrl = 'folders/';
 
     Bookmark.prototype.validate = function(attrs, options) {
       var errors;
@@ -504,17 +567,17 @@ window.require.register("models/folder", function(exports, require, module) {
 
     Bookmark.prototype.get = function(callbacks) {
       this.prepareCallbacks(callbacks);
-      return client.get("/folders/" + this.id, callbacks);
+      return client.get("folders/" + this.id, callbacks);
     };
 
     Bookmark.prototype.findFiles = function(callbacks) {
       this.prepareCallbacks(callbacks);
-      return client.get("/folders/" + this.id + "/files", callbacks);
+      return client.get("folders/" + this.id + "/files", callbacks);
     };
 
     Bookmark.prototype.findFolders = function(callbacks) {
       this.prepareCallbacks(callbacks);
-      return client.get("/folders/" + this.id + "/folders", callbacks);
+      return client.get("folders/" + this.id + "/folders", callbacks);
     };
 
     return Bookmark;
@@ -672,7 +735,6 @@ window.require.register("views/fileslist", function(exports, require, module) {
         contentType: false,
         data: formdata,
         success: function(data) {
-          console.log(data);
           return file.set(data);
         }
       });
@@ -799,6 +861,9 @@ window.require.register("views/folder", function(exports, require, module) {
           _this.filesList = new FilesList(data);
           _this.$('#files').append(_this.filesList.$el);
           return _this.filesList.render();
+        },
+        error: function(error) {
+          return console.log(error);
         }
       });
       return this.model.findFolders({
@@ -818,6 +883,9 @@ window.require.register("views/folder", function(exports, require, module) {
           _this.foldersList = new FoldersList(data);
           _this.$('#folders').append(_this.foldersList.$el);
           return _this.foldersList.render();
+        },
+        error: function(error) {
+          return console.log(error);
         }
       });
     };
