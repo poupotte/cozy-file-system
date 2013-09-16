@@ -5,7 +5,7 @@ module.exports = class Bookmark extends Backbone.Model
 
     # This field is required to know from where data should be loaded.
     # We'll cover it better in the backend part.
-    rootUrl: 'files'
+    rootUrl: 'files/'
 
     # use same events as backbone to enable socket-listener
     prepareCallbacks: (callbacks, presuccess, preerror) ->
@@ -25,4 +25,4 @@ module.exports = class Bookmark extends Backbone.Model
     # Get application description
     getAttachment: (file, callbacks) ->
         @prepareCallbacks callbacks
-        client.post "/files/#{@id}/getAttachment/#{@name}", callbacks
+        client.post "files/#{@id}/getAttachment/#{@name}", callbacks

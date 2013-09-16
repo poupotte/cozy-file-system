@@ -4,7 +4,7 @@ module.exports = class Bookmark extends Backbone.Model
 
     # This field is required to know from where data should be loaded.
     # We'll cover it better in the backend part.
-    rootUrl: 'folders' 
+    rootUrl: 'folders/' 
 
     validate: (attrs, options) ->
 
@@ -35,14 +35,14 @@ module.exports = class Bookmark extends Backbone.Model
     # Get application description
     get: (callbacks) ->
         @prepareCallbacks callbacks
-        client.get "/folders/#{@id}", callbacks
+        client.get "folders/#{@id}", callbacks
 
     # Get application description
     findFiles: (callbacks) ->
         @prepareCallbacks callbacks
-        client.get "/folders/#{@id}/files", callbacks
+        client.get "folders/#{@id}/files", callbacks
 
     # Get application description
     findFolders: (callbacks) ->
         @prepareCallbacks callbacks
-        client.get "/folders/#{@id}/folders", callbacks
+        client.get "folders/#{@id}/folders", callbacks

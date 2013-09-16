@@ -19,7 +19,7 @@ module.exports = class AppView extends BaseView
         'click .add': 'onAddFolder'
         'change #uploader': 'onAddFile'
 
-    afterRender: =>
+    afterRender: ->
         super
         @name = @$('#name')
         @uploader = @$('#uploader')[0]
@@ -38,6 +38,8 @@ module.exports = class AppView extends BaseView
                 @filesList = new FilesList data
                 @$('#files').append @filesList.$el
                 @filesList.render()  
+            error: (error) =>
+                console.log error
 
         @model.findFolders 
             success: (folders) =>
@@ -53,6 +55,8 @@ module.exports = class AppView extends BaseView
                 @foldersList = new FoldersList data
                 @$('#folders').append @foldersList.$el 
                 @foldersList.render()
+            error: (error) =>
+                console.log error
 
 
     onAddFolder: =>
