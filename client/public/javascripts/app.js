@@ -88,17 +88,7 @@ window.require.register("application", function(exports, require, module) {
 
   module.exports = {
     initialize: function() {
-      var Router, e, locales;
-      this.locale = window.locale;
-      this.polyglot = new Polyglot();
-      try {
-        locales = require('locales/' + this.locale);
-      } catch (_error) {
-        e = _error;
-        locales = require('locales/en');
-      }
-      this.polyglot.extend(locales);
-      window.t = this.polyglot.t.bind(this.polyglot);
+      var Router;
       Router = require('router');
       this.router = new Router();
       this.folders = new FolderCollection();
