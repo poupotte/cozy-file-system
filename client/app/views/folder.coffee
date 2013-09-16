@@ -1,11 +1,12 @@
 BaseView = require '../lib/base_view'
-Uploader = require './uploader'
 FilesList = require './fileslist'
 FileCollection = require '../collections/file'
 FolderCollection = require '../collections/folder'
 FoldersList = require './folderslist'
 Folder = require '../models/folder'
 app = require 'application'
+
+directoryPlaceholder = '.couchfs-directory-placeholder'
 
 module.exports = class AppView extends BaseView
 
@@ -18,10 +19,11 @@ module.exports = class AppView extends BaseView
         'click .add': 'onAddFolder'
         'change #uploader': 'onAddFile'
 
-    afterRender: ->
+    afterRender: =>
         super
         @name = @$('#name')
         @uploader = @$('#uploader')[0]
+
         @model.findFiles 
             success: (files) =>
                 app.files.add files 
@@ -29,14 +31,13 @@ module.exports = class AppView extends BaseView
                 if @model.attributes.id is 'root'
                     @repository = ""
                 else
-                    @repository = @model.attributes.slug.replace '.couchfs-directory-placeholder', ''
+                    @repository = @model.attributes.slug.replace directoryPlaceholder , ''
                 data = 
                     collection: collection 
                     repository: @repository
                 @filesList = new FilesList data
                 @$('#files').append @filesList.$el
                 @filesList.render()  
-
 
         @model.findFolders 
             success: (folders) =>
@@ -45,13 +46,14 @@ module.exports = class AppView extends BaseView
                 if @model.attributes.id is 'root'
                     @repository = ""
                 else
-                    @repository = @model.attributes.slug.replace '.couchfs-directory-placeholder', ''
+                    @repository = @model.attributes.slug.replace directoryPlaceholder , ''
                 data = 
                     collection: collection 
                     repository: @repository
                 @foldersList = new FoldersList data
                 @$('#folders').append @foldersList.$el 
                 @foldersList.render()
+
 
     onAddFolder: =>
         folder = new Folder name: @repository + @name.val()
@@ -60,6 +62,7 @@ module.exports = class AppView extends BaseView
             alert "The folder name is empty"
         else
             @foldersList.onAddFolder folder.attributes
+
 
     onAddFile: =>
         for attach in @uploader.files

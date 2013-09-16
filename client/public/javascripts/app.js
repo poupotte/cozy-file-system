@@ -672,6 +672,7 @@ window.require.register("views/fileslist", function(exports, require, module) {
         contentType: false,
         data: formdata,
         success: function(data) {
+          console.log(data);
           return file.set(data);
         }
       });
@@ -732,14 +733,12 @@ window.require.register("views/fileslist_item", function(exports, require, modul
   
 });
 window.require.register("views/folder", function(exports, require, module) {
-  var AppView, BaseView, FileCollection, FilesList, Folder, FolderCollection, FoldersList, Uploader, app, _ref,
+  var AppView, BaseView, FileCollection, FilesList, Folder, FolderCollection, FoldersList, app, directoryPlaceholder, _ref,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   BaseView = require('../lib/base_view');
-
-  Uploader = require('./uploader');
 
   FilesList = require('./fileslist');
 
@@ -752,6 +751,8 @@ window.require.register("views/folder", function(exports, require, module) {
   Folder = require('../models/folder');
 
   app = require('application');
+
+  directoryPlaceholder = '.couchfs-directory-placeholder';
 
   module.exports = AppView = (function(_super) {
     __extends(AppView, _super);
@@ -789,7 +790,7 @@ window.require.register("views/folder", function(exports, require, module) {
           if (_this.model.attributes.id === 'root') {
             _this.repository = "";
           } else {
-            _this.repository = _this.model.attributes.slug.replace('.couchfs-directory-placeholder', '');
+            _this.repository = _this.model.attributes.slug.replace(directoryPlaceholder, '');
           }
           data = {
             collection: collection,
@@ -808,7 +809,7 @@ window.require.register("views/folder", function(exports, require, module) {
           if (_this.model.attributes.id === 'root') {
             _this.repository = "";
           } else {
-            _this.repository = _this.model.attributes.slug.replace('.couchfs-directory-placeholder', '');
+            _this.repository = _this.model.attributes.slug.replace(directoryPlaceholder, '');
           }
           data = {
             collection: collection,
@@ -1041,95 +1042,4 @@ window.require.register("views/templates/uploader", function(exports, require, m
   }
   return buf.join("");
   };
-});
-window.require.register("views/uploader", function(exports, require, module) {
-  var BaseView, Uploader, app, _ref,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  BaseView = require('../lib/base_view');
-
-  app = require('../../application');
-
-  module.exports = Uploader = (function(_super) {
-    __extends(Uploader, _super);
-
-    function Uploader() {
-      this.handleFiles = __bind(this.handleFiles, this);
-      this.upload = __bind(this.upload, this);
-      this.addFile = __bind(this.addFile, this);
-      _ref = Uploader.__super__.constructor.apply(this, arguments);
-      return _ref;
-    }
-
-    Uploader.prototype.className = 'uploader';
-
-    Uploader.prototype.tagName = 'div';
-
-    Uploader.prototype.template = require('./templates/uploader');
-
-    Uploader.prototype.events = function() {
-      return {
-        'change #uploader': 'addFile'
-      };
-    };
-
-    Uploader.prototype.afterRender = function() {
-      Uploader.__super__.afterRender.call(this);
-      return this.uploader = this.$('#uploader')[0];
-    };
-
-    Uploader.prototype.addFile = function() {
-      var attach, file, fileAttributes;
-      attach = this.uploader.files[0];
-      fileAttributes = {};
-      fileAttributes.name = attach.name;
-      file = new File(fileAttributes);
-      file.file = attach;
-      return this.upload(file);
-    };
-
-    Uploader.prototype.upload = function() {
-      var formdata;
-      formdata = new FormData();
-      formdata.append('cid', file.cid);
-      formdata.append('name', file.get('name'));
-      formdata.append('file', file.file);
-      return Backbone.sync('create', file, {
-        contentType: false,
-        data: formdata
-      });
-    };
-
-    Uploader.prototype.handleFiles = function(file) {
-      var fileAttributes,
-        _this = this;
-      fileAttributes = {};
-      fileAttributes = {
-        title: file.name,
-        artist: "",
-        album: ""
-      };
-      file = new File(fileAttributes);
-      file.file = file;
-      app.files.unshift(file, {
-        sort: false
-      });
-      file.set({
-        state: 'client'
-      });
-      Backbone.Mediator.publish('uploader:addFile');
-      return this.uploadQueue.push(file, function(err, file) {
-        if (err) {
-          console.log(err);
-          return app.files.remove(file);
-        }
-      });
-    };
-
-    return Uploader;
-
-  })(BaseView);
-  
 });

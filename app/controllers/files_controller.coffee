@@ -19,9 +19,6 @@ action 'all', ->
         if err
             send error: true, msg: "Server error occured", 500
         else
-            for file in files
-                if file.name.split('/').length is 1
-                    res.push file
             send res, 200
 
 action 'create', ->
