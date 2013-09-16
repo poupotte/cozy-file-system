@@ -709,6 +709,7 @@ li[class^="icon-"].icon-large:before, li[class*=" icon-"].icon-large:before {
 }
 #content {
   padding: 2em;
+  background-color: #fff;
 }
 #h4 {
   margin-top: 10px;
